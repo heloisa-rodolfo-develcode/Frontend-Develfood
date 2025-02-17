@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+    --color-background: #F2F2F2;
+    --color-primary: #071A40;
+    --color-secondary: #01A5A5;
+    --color-success: #00D982;
+    --color-error: #C90000;
+
+    --color-dark-background: #031626;
+    --color-dark-primary: #07D9D9;
+    --color-dark-secondary: #01A5A5;
+
+    --font-roboto: Roboto Condensed, sans-serif
+}
+
+@layer base {
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+}  
