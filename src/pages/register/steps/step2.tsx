@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User, Phone, ForkKnife, CaretDown } from "phosphor-react";
 import { Input } from "../../../components/input";
 import { z } from "zod";
@@ -54,6 +54,7 @@ export default function Step2({
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFoods, setSelectedFoods] = useState<string[]>([]);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -70,6 +71,19 @@ export default function Step2({
     setFormData((prev: CreateRestaurantRequest) => ({ ...prev, ...data })); // Atualize os dados do formulário
     onNext();
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col justify-center items-center bg-background gap-10">
@@ -127,7 +141,7 @@ export default function Step2({
             )}
           </div>
 
-          <div className="relative mt-2">
+          <div className="relative mt-2" ref={dropdownRef}>
             <div
               className="relative flex items-center cursor-pointer"
               onClick={toggleDropdown}
