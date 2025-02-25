@@ -16,7 +16,8 @@ const schema = z.object({
     .regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Telefone inválido"),
   foodTypes: z
     .array(z.string())
-    .min(1, "Selecione pelo menos um tipo de comida"),
+    .min(1, "Selecione pelo menos um tipo de comida")
+    .max(2, "Selecione no máximo dois tipos de comida"),
 });
 
 const foodTypes = [
@@ -61,14 +62,16 @@ export default function Step2({
   const handleCheckboxChange = (value: string) => {
     const newSelectedFoods = selectedFoods.includes(value)
       ? selectedFoods.filter((item) => item !== value)
-      : [...selectedFoods, value];
+      : selectedFoods.length < 2
+      ? [...selectedFoods, value]
+      : selectedFoods;
 
     setSelectedFoods(newSelectedFoods);
     setValue("foodTypes", newSelectedFoods, { shouldValidate: true });
   };
 
   const onSubmit = (data: Partial<CreateRestaurantRequest>) => {
-    setFormData((prev: CreateRestaurantRequest) => ({ ...prev, ...data })); // Atualize os dados do formulário
+    setFormData((prev: CreateRestaurantRequest) => ({ ...prev, ...data }));
     onNext();
   };
 
@@ -174,6 +177,7 @@ export default function Step2({
                       checked={selectedFoods.includes(option.value)}
                       onChange={() => handleCheckboxChange(option.value)}
                       className="mr-2"
+                      disabled={selectedFoods.length >= 2 && !selectedFoods.includes(option.value)}
                     />
                     {option.label}
                   </label>
