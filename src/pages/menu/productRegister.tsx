@@ -3,9 +3,10 @@ import { ArrowLeft, ForkKnife, CaretDown, Image } from "phosphor-react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { formatPrice } from "../../utils/masks/maskPrice";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 
 const schema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
@@ -14,8 +15,8 @@ const schema = z.object({
   foodTypes: z
     .array(z.string())
     .min(1, "Selecione pelo menos um tipo de comida")
-    .max(2, "Selecione no máximo dois tipos de comida"),
-    image: z.string().optional(),
+    .max(1, "Selecione no máximo um tipo de comida"),
+  image: z.string().optional(),
 });
 
 type DishFormData = z.infer<typeof schema>;
@@ -29,8 +30,9 @@ const foodTypes = [
 export function DishRegister() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFoods, setSelectedFoods] = useState<string[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null); 
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const {
     control,
@@ -51,11 +53,7 @@ export function DishRegister() {
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleCheckboxChange = (value: string) => {
-    const newSelectedFoods = selectedFoods.includes(value)
-      ? selectedFoods.filter((item) => item !== value)
-      : selectedFoods.length < 2
-      ? [...selectedFoods, value]
-      : selectedFoods;
+    const newSelectedFoods = selectedFoods.includes(value) ? [] : [value];
 
     setSelectedFoods(newSelectedFoods);
     setValue("foodTypes", newSelectedFoods, { shouldValidate: true });
@@ -64,7 +62,8 @@ export function DishRegister() {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB
         alert("A imagem não pode ser maior que 5MB.");
         return;
       }
@@ -86,13 +85,17 @@ export function DishRegister() {
         foodTypes: data.foodTypes,
       });
   
-  
       if (response.status === 200) {
-        alert("Produto cadastrado com sucesso!");
+        toast.success("Produto cadastrado com sucesso!");
+
+        setTimeout(() => {
+          navigate("/menu");
+        }, 2000);
       }
     } catch (error) {
       console.error("Erro ao cadastrar produto:", error);
-      alert("Erro ao cadastrar produto!");
+  
+      toast.error("Erro ao cadastrar produto. Tente novamente.");
     }
   };
 
@@ -115,6 +118,7 @@ export function DishRegister() {
   return (
     <div className="flex items-center justify-center p-6 mt-8 bg-gray-100">
       <div className="relative max-w-2xl p-6">
+      <Toaster position="bottom-right" />
         <NavLink to="/menu">
           <button className="absolute top-5 p-2 w-[4rem] bg-primary text-white rounded-lg cursor-pointer mr-10">
             <ArrowLeft size={20} weight="fill" className="ml-3" />
@@ -191,7 +195,9 @@ export function DishRegister() {
                     type="text"
                     placeholder="Preço"
                     className="w-[20rem] p-2 border rounded"
-                    onChange={(e) => field.onChange(formatPrice(e.target.value))}
+                    onChange={(e) =>
+                      field.onChange(formatPrice(e.target.value))
+                    }
                   />
                 )}
               />
@@ -241,8 +247,8 @@ export function DishRegister() {
                           onChange={() => handleCheckboxChange(option.value)}
                           className="mr-2"
                           disabled={
-                            selectedFoods.length >= 2 &&
-                            !selectedFoods.includes(option.value)
+                            selectedFoods.length >= 1 && 
+                            !selectedFoods.includes(option.value) 
                           }
                         />
                         {option.label}

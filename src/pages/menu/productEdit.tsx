@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { NavLink, useParams } from "react-router-dom";
 import axios from "axios";
 import { formatPrice } from "../../utils/masks/maskPrice";
-
+import toast, { Toaster } from "react-hot-toast";
 
 const schema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
@@ -15,7 +15,7 @@ const schema = z.object({
   foodTypes: z
     .array(z.string())
     .min(1, "Selecione pelo menos um tipo de comida")
-    .max(2, "Selecione no máximo dois tipos de comida"),
+    .max(1, "Selecione no máximo um tipo de comida"),
 });
 
 type DishFormData = z.infer<typeof schema>;
@@ -30,7 +30,7 @@ export function DishEdit() {
   const { id } = useParams<{ id: string }>();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFoods, setSelectedFoods] = useState<string[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null); 
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -51,7 +51,8 @@ export function DishEdit() {
 
   useEffect(() => {
     if (id) {
-      axios.get(`http://localhost:3000/products/${id}`)
+      axios
+        .get(`http://localhost:3000/products/${id}`)
         .then((response) => {
           const product = response.data;
           setValue("name", product.name);
@@ -68,11 +69,7 @@ export function DishEdit() {
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleCheckboxChange = (value: string) => {
-    const newSelectedFoods = selectedFoods.includes(value)
-      ? selectedFoods.filter((item) => item !== value)
-      : selectedFoods.length < 2
-      ? [...selectedFoods, value]
-      : selectedFoods;
+    const newSelectedFoods = selectedFoods.includes(value) ? [] : [value];
 
     setSelectedFoods(newSelectedFoods);
     setValue("foodTypes", newSelectedFoods, { shouldValidate: true });
@@ -83,25 +80,31 @@ export function DishEdit() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelectedImage(reader.result as string); 
+        setSelectedImage(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const onSubmit = (data: DishFormData) => {
-    const token = localStorage.getItem("token"); 
-  
+    const token = localStorage.getItem("token");
+
     axios
       .put(`http://localhost:3000/products/${id}`, data, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((response) => {
         console.log("Produto atualizado com sucesso:", response.data);
+
+        toast.success("Produto atualizado com sucesso!");
       })
-      .catch((error) => console.error("Erro ao atualizar produto:", error));
+      .catch((error) => {
+        console.error("Erro ao atualizar produto:", error);
+
+        toast.error("Erro ao atualizar o produto. Tente novamente.");
+      });
   };
 
   useEffect(() => {
@@ -123,6 +126,7 @@ export function DishEdit() {
   return (
     <div className="flex items-center justify-center p-6 mt-8 bg-gray-100">
       <div className="relative max-w-2xl p-6">
+        <Toaster position="bottom-right" />
         <NavLink to="/menu">
           <button className="absolute top-5 p-2 w-[4rem] bg-primary text-white rounded-lg cursor-pointer mr-10">
             <ArrowLeft size={20} weight="fill" className="ml-3" />
@@ -199,7 +203,9 @@ export function DishEdit() {
                     type="text"
                     placeholder="Preço"
                     className="w-[20rem] p-2 border rounded"
-                    onChange={(e) => field.onChange(formatPrice(e.target.value))}
+                    onChange={(e) =>
+                      field.onChange(formatPrice(e.target.value))
+                    }
                   />
                 )}
               />
@@ -249,8 +255,8 @@ export function DishEdit() {
                           onChange={() => handleCheckboxChange(option.value)}
                           className="mr-2"
                           disabled={
-                            selectedFoods.length >= 2 &&
-                            !selectedFoods.includes(option.value)
+                            selectedFoods.length >= 1 && 
+                            !selectedFoods.includes(option.value) 
                           }
                         />
                         {option.label}
