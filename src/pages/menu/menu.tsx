@@ -23,7 +23,7 @@ export function Menu() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/products")
+      .get("https://backend-develfood-server.vercel.app/products")
       .then((response) => {
         console.log("Resposta da API:", response.data);
         if (Array.isArray(response.data)) {
@@ -65,7 +65,7 @@ export function Menu() {
     if (productToDelete === null) return;
 
     try {
-      await axios.delete(`http://localhost:3000/products/${productToDelete}`);
+      await axios.delete(`https://backend-develfood-server.vercel.app/products/${productToDelete}`);
       setProdutos(produtos.filter((product) => product.id !== productToDelete)); 
       setShowModal(false); 
       setProductToDelete(null); 

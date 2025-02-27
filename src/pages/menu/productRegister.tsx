@@ -77,7 +77,7 @@ export function DishRegister() {
 
   const onSubmit = async (data: DishFormData) => {
     try {
-      const response = await axios.post("http://localhost:3000/products", {
+      const response = await axios.post("https://backend-develfood-server.vercel.app/products", {
         name: data.name,
         image: selectedImage || null,
         description: data.description,

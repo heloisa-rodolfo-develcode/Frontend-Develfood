@@ -52,7 +52,7 @@ export function DishEdit() {
   useEffect(() => {
     if (id) {
       axios
-        .get(`http://localhost:3000/products/${id}`)
+        .get(`https://backend-develfood-server.vercel.app/products/${id}`)
         .then((response) => {
           const product = response.data;
           setValue("name", product.name);
@@ -90,7 +90,7 @@ export function DishEdit() {
     const token = localStorage.getItem("token");
 
     axios
-      .put(`http://localhost:3000/products/${id}`, data, {
+      .put(`https://backend-develfood-server.vercel.app/products/${id}`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
