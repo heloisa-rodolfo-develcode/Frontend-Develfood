@@ -4,7 +4,7 @@ import { Product } from "../interfaces/productInterface";
 
 
 
-const API_URL = "https://backend-develfood.vercel.app/products";
+const API_URL = "https://backend-develfood-64x6.onrender.com/products";
 
 
 export const getProducts = async (): Promise<Product[]> => {

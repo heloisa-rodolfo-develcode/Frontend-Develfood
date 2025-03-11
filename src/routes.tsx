@@ -7,14 +7,14 @@ import { Home } from "./pages/app/home";
 import { NotFound } from "./pages/error/404";
 import { Profile } from "./pages/profile/profile";
 import { Menu } from "./pages/menu/menu";
-import { Order } from "./pages/order/order";
-import { PromotionPage } from "./pages/promotion/promotion";
 import { DishRegister } from "./pages/menu/productRegister";
 import { DishEdit } from "./pages/menu/productEdit";
-import { PromotionRegister } from "./pages/promotion/promotionRegister";
-import { PromotionEdit } from "./pages/promotion/promotionEdit";
 import { SuccessPage } from "./pages/register/successPage";
 import { ErrorPage } from "./pages/register/errorPage"; 
+import { OrderPage } from "./pages/order/order";
+import { PromotionPage } from "./promotion/promotion";
+import { PromotionRegister } from "./promotion/promotionRegister";
+import { PromotionEdit } from "./promotion/promotionEdit";
 
 export const router = createBrowserRouter([
   {
@@ -34,7 +34,7 @@ export const router = createBrowserRouter([
       { path: "home", element: <Home /> },
       { path: "profile", element: <Profile /> },
       { path: "menu", element: <Menu /> },
-      { path: "order", element: <Order /> },
+      { path: "order", element: <OrderPage /> },
       { path: "promotion", element: <PromotionPage /> },
       { path: "dish-register", element: <DishRegister /> },
       { path: "dish-edit/:id", element: <DishEdit /> },
