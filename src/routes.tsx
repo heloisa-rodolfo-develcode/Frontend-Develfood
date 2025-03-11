@@ -10,7 +10,7 @@ import { Menu } from "./pages/menu/menu";
 import { DishRegister } from "./pages/menu/productRegister";
 import { DishEdit } from "./pages/menu/productEdit";
 import { SuccessPage } from "./pages/register/successPage";
-import { ErrorPage } from "./pages/register/errorPage"; 
+import { ErrorPage } from "./pages/register/errorPage";
 import { OrderPage } from "./pages/order/order";
 import { PromotionPage } from "./promotion/promotion";
 import { PromotionRegister } from "./promotion/promotionRegister";
@@ -19,18 +19,9 @@ import { PromotionEdit } from "./promotion/promotionEdit";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <AuthLayout />, 
+    element: <AppLayout />, // Mudei para AppLayout
     children: [
-      { path: "sign-in", element: <SignIn /> },
-      { path: "sign-up", element: <SignUp /> },
-      { path: "success-register", element: <SuccessPage /> }, 
-      { path: "error-register", element: <ErrorPage /> },
-    ],
-  },
-  {
-    path: "/",
-    element: <AppLayout />, 
-    children: [
+      { index: true, element: <Menu /> }, // Rota raiz agora aponta para o Menu
       { path: "home", element: <Home /> },
       { path: "profile", element: <Profile /> },
       { path: "menu", element: <Menu /> },
@@ -43,7 +34,17 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "*", 
+    path: "/auth", // Mudei o prefixo para /auth
+    element: <AuthLayout />,
+    children: [
+      { path: "sign-in", element: <SignIn /> },
+      { path: "sign-up", element: <SignUp /> },
+      { path: "success-register", element: <SuccessPage /> },
+      { path: "error-register", element: <ErrorPage /> },
+    ],
+  },
+  {
+    path: "*",
     element: <NotFound />,
   },
 ]);
