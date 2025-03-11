@@ -2,7 +2,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Promotion } from "../interfaces/promotionInterface";
 
-const API_URL = "http://localhost:3000/promotions";
+const API_URL = "https://backend-develfood.vercel.app/promotions";
 
 export const getPromotion = async (): Promise<Promotion[]> => {
   try {
