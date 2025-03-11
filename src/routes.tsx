@@ -21,8 +21,9 @@ export const router = createBrowserRouter([
     path: "/",
     element: <AppLayout />, // Mudei para AppLayout
     children: [
-      { index: true, element: <Menu /> }, // Rota raiz agora aponta para o Menu
-      { path: "home", element: <Home /> },
+    
+      { index: true, element: <Home /> },
+      { path: "menu", element: <Menu /> }, // Rota raiz agora aponta para o Menu
       { path: "profile", element: <Profile /> },
       { path: "menu", element: <Menu /> },
       { path: "order", element: <OrderPage /> },
