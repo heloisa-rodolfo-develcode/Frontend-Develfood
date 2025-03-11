@@ -1,12 +1,14 @@
+// components/DishEdit.tsx
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ForkKnife, CaretDown, Image } from "phosphor-react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NavLink, useParams } from "react-router-dom";
-import axios from "axios";
 import { formatPrice } from "../../utils/masks/maskPrice";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { getProductById, updateProduct } from "../../services/productService";
+
 
 const schema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
@@ -51,10 +53,8 @@ export function DishEdit() {
 
   useEffect(() => {
     if (id) {
-      axios
-        .get(`https://backend-develfood-server.vercel.app/products/${id}`)
-        .then((response) => {
-          const product = response.data;
+      getProductById(id)
+        .then((product) => {
           setValue("name", product.name);
           setValue("description", product.description);
           setValue("price", product.price);
@@ -86,25 +86,21 @@ export function DishEdit() {
     }
   };
 
-  const onSubmit = (data: DishFormData) => {
-    const token = localStorage.getItem("token");
-
-    axios
-      .put(`https://backend-develfood-server.vercel.app/products/${id}`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((response) => {
-        console.log("Produto atualizado com sucesso:", response.data);
-
-        toast.success("Produto atualizado com sucesso!");
-      })
-      .catch((error) => {
+  const onSubmit = async (data: DishFormData) => {
+    if (id) {
+      try {
+        await updateProduct(
+          id,
+          {
+            ...data,
+            image: selectedImage || null,
+          },
+        );
+      } catch (error) {
         console.error("Erro ao atualizar produto:", error);
-
-        toast.error("Erro ao atualizar o produto. Tente novamente.");
-      });
+      }
+    }
+   
   };
 
   useEffect(() => {

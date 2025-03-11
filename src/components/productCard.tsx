@@ -1,20 +1,15 @@
 import { useState } from "react";
 import { PencilSimple, Trash } from "phosphor-react";
 import { NavLink } from "react-router-dom";
+import { Product } from "../interfaces/productInterface";
 
-interface Produto {
-    id: number;
-    name: string;
-    image: string;
 
-}
-
-interface CardProdutoProps {
-    products: Produto;
+interface CardProductProps {
+    products: Product;
     onDelete: (action:string) => void
 }
 
-export function CardProduto({ products, onDelete }: CardProdutoProps) {
+export function CardProduct({ products, onDelete }: CardProductProps) {
     const [hovered, setHovered] = useState(false);
   
     return (
@@ -24,7 +19,7 @@ export function CardProduto({ products, onDelete }: CardProdutoProps) {
         onMouseLeave={() => setHovered(false)}
       >
         <img
-          src={products.image} 
+          src={products.image  ?? "/placeholder.png"} 
           alt={products.name} 
           className="w-full h-40 object-cover rounded-lg"
         />

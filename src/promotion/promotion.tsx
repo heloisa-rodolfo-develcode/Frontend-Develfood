@@ -1,44 +1,46 @@
 import { useState, useEffect } from "react";
 import { MagnifyingGlass, CaretLeft, CaretRight } from "phosphor-react";
 import { NavLink } from "react-router-dom";
-import { CardProduct } from "../../components/productCard";
-import { Product } from "../../interfaces/productInterface";
-import { getProducts, deleteProduct } from "../../services/productService"; 
 
-export function Menu() {
+import { CardPromotions } from "./components/promotionCard";
+import { Promotion } from "../interfaces/promotionInterface";
+import { deletePromotion, getPromotion } from "../services/promotionService";
+
+
+export function PromotionPage() {
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [productToDelete, setProductToDelete] = useState<number | null>(null);
+  const [promotions, setPromotion] = useState<Promotion[]>([]);
+  const [promotionToDelete, setPromotionToDelete] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 8;
 
 
   useEffect(() => {
-    const loadProducts = async () => {
+    const loadPromotion = async () => {
       try {
-        const products = await getProducts();
-        setProducts(products);
+        const promotions = await getPromotion();
+        setPromotion(promotions);
       } catch (error) {
-        console.error("Erro ao carregar produtos:", error);
+        console.error("Erro ao carregar promoções:", error);
       }
     };
 
-    loadProducts();
+    loadPromotion();
   }, []);
 
-  const filteredProdutos = searchTerm.length >= 3
-    ? products.filter((product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPromotions = searchTerm.length >= 3
+    ? promotions.filter((promotion) =>
+        promotion.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : products;
+    : promotions;
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredProdutos.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredPromotions.slice(indexOfFirstItem, indexOfLastItem);
 
-  const totalPages = Math.ceil(filteredProdutos.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredPromotions.length / itemsPerPage);
 
   const nextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
@@ -48,40 +50,40 @@ export function Menu() {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  const handleOpenModal = (action: string, productId: number) => {
+  const handleOpenModal = (action: string, promotionId: number) => {
     setModalAction(action);
-    setProductToDelete(productId);
+    setPromotionToDelete(promotionId);
     setShowModal(true);
   };
 
   const handleDelete = async () => {
-    if (productToDelete === null) return;
+    if (promotionToDelete === null) return;
 
     try {
-      await deleteProduct(productToDelete);
-      setProducts(products.filter((product) => product.id !== productToDelete)); 
+      await deletePromotion(promotionToDelete);
+      setPromotion(promotions.filter((promotion) => promotion.id !== promotionToDelete)); 
       setShowModal(false); 
-      setProductToDelete(null); 
+      setPromotionToDelete(null); 
     } catch (error) {
-      console.error("Erro ao excluir produto:", error);
+      console.error("Erro ao excluir promoção:", error);
     }
   };
 
   return (
     <div className="p-10">
       <div className="flex justify-center gap-30 items-center">
-        <NavLink to="/dish-register">
+        <NavLink to="/promotion-register">
           <button className="bg-primary font-roboto text-white text-xl px-5 py-2 rounded-lg cursor-pointer">
-            Novo prato +
+            Nova promoção +
           </button>
         </NavLink>
         <h1 className="text-4xl font-semibold font-roboto text-center mb-6">
-          Menu do restaurante
+          Suas promoções
         </h1>
         <div className="relative">
           <input
             type="text"
-            placeholder="Nome do prato"
+            placeholder="Nome da promoção"
             className="border bg-white border-gray-300 rounded-lg px-8 py-2"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -93,11 +95,11 @@ export function Menu() {
         </div>
       </div>
       <div className="mr-20 ml-20 grid grid-cols-4 gap-4 mt-4">
-        {currentItems.map((product) => (
-          <CardProduct
-            key={product.id}
-            products={product}
-            onDelete={() => handleOpenModal("excluir", product.id)} 
+        {currentItems.map((promotion) => (
+          <CardPromotions
+            key={promotion.id}
+            promotions={promotion}
+            onDelete={() => handleOpenModal("excluir", promotion.id)} 
           />
         ))}
       </div>

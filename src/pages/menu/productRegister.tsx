@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ForkKnife, CaretDown, Image } from "phosphor-react";
 import { Controller, useForm } from "react-hook-form";
@@ -5,8 +6,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NavLink, useNavigate } from "react-router-dom";
 import { formatPrice } from "../../utils/masks/maskPrice";
-import axios from "axios";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+import { productRegister } from "../../services/productService";
+
+
 
 const schema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
@@ -77,25 +80,19 @@ export function DishRegister() {
 
   const onSubmit = async (data: DishFormData) => {
     try {
-      const response = await axios.post("https://backend-develfood-server.vercel.app/products", {
+      await productRegister({
         name: data.name,
         image: selectedImage || null,
         description: data.description,
         price: data.price,
         foodTypes: data.foodTypes,
       });
-  
-      if (response.status === 200) {
-        toast.success("Produto cadastrado com sucesso!");
 
-        setTimeout(() => {
-          navigate("/menu");
-        }, 2000);
-      }
+      setTimeout(() => {
+        navigate("/menu");
+      }, 2000);
     } catch (error) {
       console.error("Erro ao cadastrar produto:", error);
-  
-      toast.error("Erro ao cadastrar produto. Tente novamente.");
     }
   };
 
@@ -118,7 +115,7 @@ export function DishRegister() {
   return (
     <div className="flex items-center justify-center p-6 mt-8 bg-gray-100">
       <div className="relative max-w-2xl p-6">
-      <Toaster position="bottom-right" />
+        <Toaster position="bottom-right" />
         <NavLink to="/menu">
           <button className="absolute top-5 p-2 w-[4rem] bg-primary text-white rounded-lg cursor-pointer mr-10">
             <ArrowLeft size={20} weight="fill" className="ml-3" />
