@@ -2,7 +2,9 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Promotion } from "../interfaces/promotionInterface";
 
-const API_URL = "https://backend-develfood.vercel.app/promotions";
+
+const API_URL = "https://backend-develfood-64x6.onrender.com/promotions";
+
 
 export const getPromotion = async (): Promise<Promotion[]> => {
   try {
@@ -13,7 +15,7 @@ export const getPromotion = async (): Promise<Promotion[]> => {
       throw new Error("Resposta inesperada da API"); 
     }
   } catch (error) {
-    console.error("Erro ao carregar promoções:", error);
+    console.error("Erro ao carregar produtos:", error);
     throw error; 
   }
 };
@@ -24,18 +26,14 @@ export const getPromotionById = async (id: string): Promise<Promotion> => {
     const response = await axios.get(`${API_URL}/${id}`);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      toast.error(`Erro ao carregar promoção: ${error.response?.data?.message} - Tente novamente.`);
-    } else {
-
-      toast.error("Erro ao carregar promoção. Tente novamente.");
-    }
-
+    console.error("Erro ao carregar promoções:", error);
+    toast.error("Erro ao carregar promoções. Tente novamente.");
     throw error;
   }
 };
 
 export const promotionRegister = async (promotionData: {
+  id: number;
   name: string;
   image: string | null;
   percentage: string;
@@ -51,12 +49,8 @@ export const promotionRegister = async (promotionData: {
     }
     throw new Error("Resposta inesperada da API");
   } catch (error) {
-
-    if (axios.isAxiosError(error)) {
-      toast.error(`Erro ao cadastrar promoção: ${error.response?.data?.message} - Tente novamente.`);
-    } else {
-      toast.error("Erro ao cadastrar promoção. Tente novamente.");
-    }
+    console.error("Erro ao cadastrar promoção:", error);
+    toast.error("Erro ao cadastrar promoção. Tente novamente.");
     throw error;
   }
 };
@@ -81,13 +75,8 @@ export const updatePromotion = async (
     }
     throw new Error("Resposta inesperada da API");
   } catch (error) {
-
-    if (axios.isAxiosError(error)) {
-      toast.error(`Erro ao atualizar promoção: ${error.response?.data?.message} - Tente novamente.`);
-    } else {
-      toast.error("Erro ao atualizar promoção. Tente novamente.");
-    }
-
+    console.error("Erro ao atualizar promoção:", error);
+    toast.error("Erro ao atualizar promoção. Tente novamente.");
     throw error;
   }
 };
