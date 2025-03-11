@@ -33,7 +33,6 @@ export const getPromotionById = async (id: string): Promise<Promotion> => {
 };
 
 export const promotionRegister = async (promotionData: {
-  id: number;
   name: string;
   image: string | null;
   percentage: string;
