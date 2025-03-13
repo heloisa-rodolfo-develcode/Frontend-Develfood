@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { OrderCard } from "./components/orderCard";
 import { Order } from "../../interfaces/orderInterface";
 import { getOrders, updateOrderStatus } from "../../services/orderService";
+import toast, { Toaster } from "react-hot-toast";
 
 export function OrderPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -9,7 +10,6 @@ export function OrderPage() {
   const [showModal, setShowModal] = useState(false);
   const [draggedOrderId, setDraggedOrderId] = useState<number | null>(null);
   const [targetStatus, setTargetStatus] = useState<string | null>(null);
-
 
   const statusColumns = ['Esperando Aceitação', 'Em Preparo', 'Em Rota', 'Entregue'];
 
@@ -31,17 +31,30 @@ export function OrderPage() {
     setDraggedOrderId(orderId);
   };
 
+  const statusOrder = ['Esperando Aceitação', 'Em Preparo', 'Em Rota', 'Entregue'];
+
   const handleDragEnd = async (newStatus: string) => {
     if (draggedOrderId !== null) {
-      setTargetStatus(newStatus);
-      if (newStatus === 'Entregue') {
-        setShowModal(true);
-      } else {
-        await updateOrderStatus(draggedOrderId, newStatus); 
-        const updatedOrders = orders.map((order) =>
-          order.id === draggedOrderId ? { ...order, status: newStatus } : order
-        );
-        setOrders(updatedOrders); 
+      const order = orders.find((order) => order.id === draggedOrderId);
+      if (order) {
+        const currentIndex = statusOrder.indexOf(order.status);
+        const newIndex = statusOrder.indexOf(newStatus);
+        if (newIndex > currentIndex) {
+          setTargetStatus(newStatus);
+          if (newStatus === 'Entregue') {
+            setShowModal(true);
+          } else {
+            const updatedOrder = await updateOrderStatus(draggedOrderId, newStatus);
+            if (updatedOrder) {
+              const updatedOrders = orders.map((order) =>
+                order.id === draggedOrderId ? { ...order, status: newStatus } : order
+              );
+              setOrders(updatedOrders);
+            }
+          }
+        } else {
+          toast.error("Movimento inválido: não é possível retroceder o status do pedido");
+        }
       }
     }
   };
@@ -85,6 +98,7 @@ export function OrderPage() {
 
   return (
     <div className="flex h-screen">
+      <Toaster position="bottom-right"/>
       <div className="flex-1 bg-gray-100 p-6">
         <h1 className="text-center text-3xl font-roboto font-bold">Seus pedidos</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-10">

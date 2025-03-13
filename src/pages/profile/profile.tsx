@@ -15,11 +15,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { maskZipcode } from "../../utils/masks/maskZipcode";
 import { Input } from "../../components/input";
 import { formatPhone } from "../../utils/masks/maskPhone";
-
+import {
+  getRestaurantProfile,
+  updateRestaurantProfile,
+} from "../../services/profileService";
 import { formatCNPJ } from "../../utils/masks/maskCnpj";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { getRestaurantProfile, updateRestaurantProfile } from "../../services/profileService";
+
+import { Toaster } from "react-hot-toast";
+import { fetchAddressByZipcode } from "../../services/cepService";
 
 const schema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
@@ -97,24 +101,25 @@ export function Profile() {
     const fetchProfile = async () => {
       const profile = await getRestaurantProfile("12345678901234");
   
-      if (profile) {
-        setValue("name", profile.name);
-        setValue("email", profile.email);
-        setValue("phone", profile.phone);
-        setValue("cnpj", profile.cnpj);
-        setValue("foodTypes", profile.foodTypes);
-        setValue("nickname", profile.nickname);
-        setValue("zipcode", profile.zipcode);
-        setValue("street", profile.street);
-        setValue("city", profile.city);
-        setValue("neighborhood", profile.neighborhood);
-        setValue("state", profile.state);
-        setValue("number", profile.number);
-  
-        setSelectedFoods(profile.foodTypes);
-      } else {
+      if (!profile) {
         console.error("Perfil não encontrado ou erro ao carregar.");
+        return;
       }
+  
+      setValue("name", profile.name);
+      setValue("email", profile.email);
+      setValue("phone", profile.phone);
+      setValue("cnpj", profile.cnpj);
+      setValue("foodTypes", profile.foodTypes);
+      setValue("nickname", profile.nickname);
+      setValue("zipcode", profile.zipcode);
+      setValue("street", profile.street);
+      setValue("city", profile.city);
+      setValue("neighborhood", profile.neighborhood);
+      setValue("state", profile.state);
+      setValue("number", profile.number);
+  
+      setSelectedFoods(profile.foodTypes);
     };
   
     fetchProfile();
@@ -133,34 +138,19 @@ export function Profile() {
     setValue("foodTypes", newSelectedFoods, { shouldValidate: true });
   };
 
-  const fetchAddressByZipcode = async (zipcode: string) => {
-    const cleanZipcode = zipcode.replace(/\D/g, "");
-    if (cleanZipcode.length === 8) {
-      try {
-        const response = await fetch(
-          `https://brasilapi.com.br/api/cep/v1/${cleanZipcode}`
-        );
-        const data = await response.json();
-        if (!data?.errors) {
-          setValue("street", data.street || "");
-          setValue("neighborhood", data.neighborhood || "");
-          setValue("city", data.city || "");
-          setValue("state", data.state || "");
-        } else {
-          console.error("CEP não encontrado");
-        }
-      } catch (error) {
-        console.error("Erro ao buscar endereço:", error);
-      }
-    }
-  };
 
-  const handleZipCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleZipCodeChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = event.target.value.replace(/\D/g, "");
     const maskedValue = maskZipcode(rawValue);
     setValue("zipcode", maskedValue, { shouldValidate: true });
     if (rawValue.length === 8) {
-      fetchAddressByZipcode(rawValue);
+      const responseZipcode = await fetchAddressByZipcode(rawValue)
+      if (responseZipcode) {
+          setValue("street", responseZipcode.street || "");
+          setValue("neighborhood", responseZipcode.neighborhood || "");
+          setValue("city", responseZipcode.city || "");
+          setValue("state", responseZipcode.state || "");
+      }
     }
   };
 
@@ -180,15 +170,11 @@ export function Profile() {
   };
 
   const onSubmit = async (data: FormData) => {
-    try {
-      const id = 1; 
-      await updateRestaurantProfile(id, data); 
-      toast.success("Perfil atualizado com sucesso!")
-    } catch (error) {
-      toast.error("Erro ao atualizar perfil:" + error);
-    }
+    const cnpj = "12345678901234";
+    console.log("Dados enviados:", data); 
+    await updateRestaurantProfile(cnpj, data);
   };
-
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -207,6 +193,7 @@ export function Profile() {
 
   return (
     <div className="mx-auto p-30">
+    <Toaster position="bottom-right"/>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-3 gap-8">
           <div className="flex flex-col items-center">

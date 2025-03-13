@@ -1,6 +1,7 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 
-const API_URL = "http://localhost:3000/restaurants"; 
+const API_URL = "https://backend-develfood-64x6.onrender.com/restaurants"; 
 
 interface RestaurantProfile {
   name: string;
@@ -23,24 +24,22 @@ export const getRestaurantProfile = async (cnpj: string): Promise<RestaurantProf
     if (response.data.length > 0) {
       return response.data[0];
     } else {
-      console.error("Restaurante não encontrado");
-      return null;
+      throw new Error("Restaurante não encontrado");
     }
-  } catch (error) {
-    console.error("Erro ao buscar perfil do restaurante:", error);
-    return null;
+  } catch {
+    toast.error("Erro ao buscar perfil do restaurante");
+    return null
   }
 };
 
-
 export const updateRestaurantProfile = async (
-  id: number,
+  cnpj: string,
   data: RestaurantProfile 
 ): Promise<void> => {
   try {
-    await axios.put(`${API_URL}/${id}`, data);
-  } catch (error) {
-    console.error("Erro ao atualizar perfil do restaurante:", error);
-    throw new Error("Erro ao atualizar perfil do restaurante.");
+    await axios.put(`${API_URL}/${cnpj}`, data);
+    toast.success("Perfil atualizado com sucesso!")
+  } catch {
+    toast.error("Erro ao atualizar perfil do restaurante");
   }
 };
