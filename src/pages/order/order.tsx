@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import toast, { Toaster } from "react-hot-toast";
 import { Order } from "../../interfaces/orderInterface";
 import { getOrders, updateOrderStatus } from "../../services/orderService";
