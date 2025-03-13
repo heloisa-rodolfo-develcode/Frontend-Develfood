@@ -1,7 +1,6 @@
 import { Calendar, CaretDown, CaretUp, Chat, CreditCard, CurrencyDollar, ForkKnife } from "phosphor-react";
 import { Order } from "../../../interfaces/orderInterface";
 
-
 interface OrderCardProps extends Order {
   onExpand: () => void;
   isExpanded: boolean;
