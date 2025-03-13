@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import { OrderCard } from "./components/orderCard";
 import { Order } from "../../interfaces/orderInterface";
 import { getOrders, updateOrderStatus } from "../../services/orderService";
-import { OrderCard } from "./components/orderCard";
 
 export function OrderPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -11,19 +10,18 @@ export function OrderPage() {
   const [draggedOrderId, setDraggedOrderId] = useState<number | null>(null);
   const [targetStatus, setTargetStatus] = useState<string | null>(null);
 
+
   const statusColumns = ['Esperando Aceitação', 'Em Preparo', 'Em Rota', 'Entregue'];
-  const statusOrder = ['Esperando Aceitação', 'Em Preparo', 'Em Rota', 'Entregue']; // Ordem dos status
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const ordersData = await getOrders();
-      if (ordersData) {
-        setOrders(ordersData);
-      }
+      const ordersData = await getOrders(); 
+      setOrders(ordersData);
     };
 
-    fetchOrders();
+    fetchOrders(); 
   }, []);
+
 
   const toggleExpand = (orderId: number) => {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId);
@@ -35,46 +33,26 @@ export function OrderPage() {
 
   const handleDragEnd = async (newStatus: string) => {
     if (draggedOrderId !== null) {
-      const draggedOrder = orders.find((order) => order.id === draggedOrderId);
-      if (draggedOrder) {
-        const currentStatus = draggedOrder.status;
-        const currentIndex = statusOrder.indexOf(currentStatus);
-        const newIndex = statusOrder.indexOf(newStatus);
-
-        // Verifica se o novo status está à direita do status atual
-        if (newIndex > currentIndex) {
-          setTargetStatus(newStatus);
-          if (newStatus === 'Entregue') {
-            setShowModal(true);
-          } else {
-            try {
-              await updateOrderStatus(draggedOrderId, newStatus);
-              const updatedOrders = orders.map((order) =>
-                order.id === draggedOrderId ? { ...order, status: newStatus } : order
-              );
-              setOrders(updatedOrders);
-            } catch (error) {
-              console.error("Erro ao atualizar status do pedido:", error);
-            }
-          }
-        } else {
-          toast.error("Movimento inválido: só é permitido mover para a direita.");
-        }
+      setTargetStatus(newStatus);
+      if (newStatus === 'Entregue') {
+        setShowModal(true);
+      } else {
+        await updateOrderStatus(draggedOrderId, newStatus); 
+        const updatedOrders = orders.map((order) =>
+          order.id === draggedOrderId ? { ...order, status: newStatus } : order
+        );
+        setOrders(updatedOrders); 
       }
     }
   };
 
   const confirmDelivery = async () => {
     if (draggedOrderId !== null && targetStatus !== null) {
-      try {
-        await updateOrderStatus(draggedOrderId, targetStatus);
-        const updatedOrders = orders.map((order) =>
-          order.id === draggedOrderId ? { ...order, status: targetStatus } : order
-        );
-        setOrders(updatedOrders);
-      } catch (error) {
-        console.error("Erro ao atualizar status do pedido:", error);
-      }
+      await updateOrderStatus(draggedOrderId, targetStatus); 
+      const updatedOrders = orders.map((order) =>
+        order.id === draggedOrderId ? { ...order, status: targetStatus } : order
+      );
+      setOrders(updatedOrders);
       setShowModal(false);
     }
   };
@@ -84,41 +62,29 @@ export function OrderPage() {
     if (order) {
       const currentStatus = order.status;
       const nextStatus = getNextStatus(currentStatus);
-
-      // Verifica se o próximo status está à direita do status atual
-      const currentIndex = statusOrder.indexOf(currentStatus);
-      const nextIndex = statusOrder.indexOf(nextStatus);
-
-      if (nextIndex > currentIndex) {
-        if (currentStatus === 'Em Rota' && nextStatus === 'Entregue') {
-          setDraggedOrderId(orderId);
-          setTargetStatus(nextStatus);
-          setShowModal(true);
-        } else {
-          try {
-            await updateOrderStatus(orderId, nextStatus);
-            const updatedOrders = orders.map((order) =>
-              order.id === orderId ? { ...order, status: nextStatus } : order
-            );
-            setOrders(updatedOrders);
-          } catch (error) {
-            console.error("Erro ao atualizar status do pedido:", error);
-          }
-        }
+  
+      if (currentStatus === 'Em Rota' && nextStatus === 'Entregue') {
+        setDraggedOrderId(orderId);
+        setTargetStatus(nextStatus);
+        setShowModal(true);
       } else {
-        console.log("Movimento inválido: só é permitido mover para a direita.");
+        await updateOrderStatus(orderId, nextStatus); 
+        const updatedOrders = orders.map((order) =>
+          order.id === orderId ? { ...order, status: nextStatus } : order
+        );
+        setOrders(updatedOrders);
       }
     }
   };
 
   const getNextStatus = (currentStatus: string): string => {
+    const statusOrder = ['Esperando Aceitação', 'Em Preparo', 'Em Rota', 'Entregue'];
     const currentIndex = statusOrder.indexOf(currentStatus);
     return currentIndex < statusOrder.length - 1 ? statusOrder[currentIndex + 1] : currentStatus;
   };
 
   return (
     <div className="flex h-screen">
-      <Toaster position="bottom-right"/>
       <div className="flex-1 bg-gray-100 p-6">
         <h1 className="text-center text-3xl font-roboto font-bold">Seus pedidos</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-10">

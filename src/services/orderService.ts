@@ -2,7 +2,7 @@ import axios from "axios";
 import { Order } from "../interfaces/orderInterface";
 import toast from "react-hot-toast";
 
-const API_URL = "http://localhost:3000/orders";
+const API_URL = "https://backend-develfood-64x6.onrender.com/orders";
 
 export const getOrders = async (): Promise<Order[]> => {
   try {
