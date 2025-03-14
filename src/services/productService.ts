@@ -39,11 +39,12 @@ export const productRegister = async (dishData: {
   description: string;
   price: string;
   foodTypes: string[];
+  available: boolean;
 }): Promise<Product> => {
   try {
     const response = await axios.post(API_URL, dishData);
 
-    if (response.status === 200) {
+    if (response.status === 201) {
       toast.success("Produto cadastrado com sucesso!");
       return response.data;
     }
@@ -64,6 +65,7 @@ export const updateProduct = async (
     price: string;
     foodTypes: string[];
     image?: string | null;
+    available: boolean;
   }
 ): Promise<Product> => {
   try {
