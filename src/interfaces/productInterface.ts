@@ -5,4 +5,5 @@ export interface Product {
     price: string;
     foodTypes: string[];
     image: string | null;
+    available: boolean;
 }

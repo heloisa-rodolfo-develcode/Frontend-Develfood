@@ -5,7 +5,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { promotionRegister } from "../services/promotionService";
@@ -85,11 +84,11 @@ export function PromotionRegister() {
   };
 
   return (
-    <div className="flex items-center justify-center p-6 mt-8 bg-gray-100">
+    <div className="flex items-center justify-center p-6 mt-8 bg-gray-100 dark:bg-dark-background">
       <div className="relative max-w-2xl p-6">
         <Toaster position="bottom-right" />
         <NavLink to="/promotion">
-          <button className="absolute top-5 p-2 w-[4rem] bg-primary text-white rounded-lg cursor-pointer mr-10">
+          <button className="absolute top-5 p-2 w-[4rem] bg-primary text-white rounded-lg cursor-pointer mr-10 dark:bg-dark-primary">
             <ArrowLeft size={20} weight="fill" className="ml-3" />
           </button>
         </NavLink>
@@ -130,7 +129,7 @@ export function PromotionRegister() {
                     {...field}
                     type="text"
                     placeholder="Nome"
-                    className="w-[20rem] p-2 border rounded"
+                    className="w-[20rem] p-2 border rounded dark:bg-white text-gray-600"
                   />
                 )}
               />
@@ -146,7 +145,7 @@ export function PromotionRegister() {
                     {...field}
                     type="text"
                     placeholder="Percentual"
-                    className="w-[20rem] p-2 border rounded"
+                    className="w-[20rem] p-2 border rounded dark:bg-white text-gray-600"
                   />
                 )}
               />
@@ -169,7 +168,7 @@ export function PromotionRegister() {
                       }
                     }}
                     dateFormat="dd/MM/yyyy"
-                    className="w-[20rem] p-2 border rounded pl-10"
+                    className="w-[20rem] p-2 border rounded pl-10 dark:bg-white text-gray-600"
                     minDate={new Date()}
                     placeholderText="Início"
                   />
@@ -194,7 +193,7 @@ export function PromotionRegister() {
                       }
                     }}
                     dateFormat="dd/MM/yyyy"
-                    className="w-[20rem] p-2 border rounded pl-10"
+                    className="w-[20rem] p-2 border rounded pl-10 dark:bg-white text-gray-600"
                     minDate={startDate || new Date()}
                     placeholderText="Final"
                   />
@@ -213,7 +212,7 @@ export function PromotionRegister() {
           <div className="flex justify-center">
             <button
               type="submit"
-              className="w-[20rem] mt-6 p-3 bg-primary text-white text-xl rounded font-roboto font-bold cursor-pointer disabled:bg-gray-400"
+              className="w-[20rem] mt-6 p-3 bg-primary text-white text-xl rounded font-roboto font-bold cursor-pointer dark:bg-dark-primary disabled:bg-gray-400"
               disabled={!isValid || !startDate || !endDate}
             >
               Salvar

@@ -1,14 +1,12 @@
-// components/DishEdit.tsx
 import { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ForkKnife, CaretDown, Image } from "phosphor-react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { formatPrice } from "../../utils/masks/maskPrice";
 import { Toaster } from "react-hot-toast";
 import { getProductById, updateProduct } from "../../services/productService";
-
 
 const schema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
@@ -18,6 +16,7 @@ const schema = z.object({
     .array(z.string())
     .min(1, "Selecione pelo menos um tipo de comida")
     .max(1, "Selecione no máximo um tipo de comida"),
+  available: z.boolean(),
 });
 
 type DishFormData = z.infer<typeof schema>;
@@ -33,38 +32,38 @@ export function DishEdit() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFoods, setSelectedFoods] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const {
     control,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors, isValid },
   } = useForm<DishFormData>({
     resolver: zodResolver(schema),
     mode: "onSubmit",
-    defaultValues: {
-      name: "",
-      description: "",
-      price: "",
-      foodTypes: [],
-    },
   });
 
   useEffect(() => {
     if (id) {
       getProductById(id)
         .then((product) => {
-          setValue("name", product.name);
-          setValue("description", product.description);
-          setValue("price", product.price);
-          setValue("foodTypes", product.foodTypes);
+          reset({
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            foodTypes: product.foodTypes,
+            available: product.available, 
+          });
           setSelectedFoods(product.foodTypes);
           setSelectedImage(product.image);
+
         })
         .catch((error) => console.error("Erro ao carregar produto:", error));
     }
-  }, [id, setValue]);
+  }, [id, reset]);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -89,18 +88,19 @@ export function DishEdit() {
   const onSubmit = async (data: DishFormData) => {
     if (id) {
       try {
-        await updateProduct(
-          id,
-          {
-            ...data,
-            image: selectedImage || null,
-          },
-        );
+        await updateProduct(id, {
+          ...data,
+          image: selectedImage || null,
+
+        });
+
+        setTimeout(() => {
+          navigate("/menu");
+        }, 2000);
       } catch (error) {
         console.error("Erro ao atualizar produto:", error);
       }
     }
-   
   };
 
   useEffect(() => {
@@ -120,11 +120,11 @@ export function DishEdit() {
   }, []);
 
   return (
-    <div className="flex items-center justify-center p-6 mt-8 bg-gray-100">
+    <div className="flex items-center justify-center p-6 mt-8 bg-gray-100 dark:bg-dark-background">
       <div className="relative max-w-2xl p-6">
         <Toaster position="bottom-right" />
         <NavLink to="/menu">
-          <button className="absolute top-5 p-2 w-[4rem] bg-primary text-white rounded-lg cursor-pointer mr-10">
+          <button className="absolute top-5 p-2 w-[4rem] bg-primary text-white rounded-lg cursor-pointer mr-10 dark:bg-dark-primary">
             <ArrowLeft size={20} weight="fill" className="ml-3" />
           </button>
         </NavLink>
@@ -135,24 +135,57 @@ export function DishEdit() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex gap-6">
-            <div className="w-40 h-40 bg-gray-300 flex flex-col items-center justify-center rounded-lg overflow-hidden relative">
-              {selectedImage ? (
-                <img
-                  src={selectedImage}
-                  alt="Imagem selecionada"
-                  className="w-full h-full object-cover"
+            <div className="">
+              <div className="w-40 h-40 bg-gray-300 flex flex-col items-center justify-center rounded-lg overflow-hidden relative">
+                {selectedImage ? (
+                  <img
+                    src={selectedImage}
+                    alt="Imagem selecionada"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <>
+                    <Image size={50} className="text-gray-500" />
+                    <span className="text-gray-500">Adicionar imagem</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-              ) : (
-                <>
-                  <Image size={50} className="text-gray-500" />
-                  <span className="text-gray-500">Adicionar imagem</span>
-                </>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              </div>
+
+              <Controller
+                name="available"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex gap-4 mt-4">
+                    <button
+                      type="button"
+                      className={`px-4 py-2 rounded-lg  ${
+                        field.value
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-300 text-gray-700"
+                      }`}
+                      onClick={() => field.onChange(true)} 
+                    >
+                      Ativo
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-4 py-2 rounded-lg ${
+                        !field.value
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-300 text-gray-700"
+                      }`}
+                      onClick={() => field.onChange(false)} 
+                    >
+                      Inativo
+                    </button>
+                  </div>
+                )}
               />
             </div>
 
@@ -165,7 +198,7 @@ export function DishEdit() {
                     {...field}
                     type="text"
                     placeholder="Nome"
-                    className="w-[20rem]  p-2 border rounded"
+                    className="w-[20rem] p-2 border rounded dark:bg-white text-gray-600"
                   />
                 )}
               />
@@ -180,7 +213,7 @@ export function DishEdit() {
                   <textarea
                     {...field}
                     placeholder="Descrição"
-                    className="w-[20rem]  p-2 border rounded h-24"
+                    className="w-[20rem] p-2 border rounded h-24 dark:bg-white text-gray-600"
                   />
                 )}
               />
@@ -198,7 +231,7 @@ export function DishEdit() {
                     {...field}
                     type="text"
                     placeholder="Preço"
-                    className="w-[20rem] p-2 border rounded"
+                    className="w-[20rem] p-2 border rounded dark:bg-white text-gray-600"
                     onChange={(e) =>
                       field.onChange(formatPrice(e.target.value))
                     }
@@ -221,7 +254,7 @@ export function DishEdit() {
                   <input
                     type="text"
                     placeholder="Tipos de comida"
-                    className="w-[20rem]  p-2 border rounded cursor-pointer pl-10"
+                    className="w-[20rem]  p-2 border rounded cursor-pointer pl-10 dark:bg-white text-gray-600"
                     readOnly
                     value={
                       selectedFoods.length > 0 ? selectedFoods.join(", ") : ""
@@ -243,7 +276,7 @@ export function DishEdit() {
                     {foodTypes.map((option) => (
                       <label
                         key={option.value}
-                        className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+                        className="flex items-center p-2 hover:bg-gray-100 cursor-pointer dark:bg-white text-gray-600"
                       >
                         <input
                           type="checkbox"
@@ -251,8 +284,8 @@ export function DishEdit() {
                           onChange={() => handleCheckboxChange(option.value)}
                           className="mr-2"
                           disabled={
-                            selectedFoods.length >= 1 && 
-                            !selectedFoods.includes(option.value) 
+                            selectedFoods.length >= 1 &&
+                            !selectedFoods.includes(option.value)
                           }
                         />
                         {option.label}
@@ -267,7 +300,7 @@ export function DishEdit() {
           <div className="flex justify-center">
             <button
               type="submit"
-              className="w-[20rem] mt-6 ml-16 p-3 bg-primary text-white text-xl rounded font-roboto font-bold cursor-pointer disabled:bg-gray-400"
+              className="w-[20rem] mt-6 ml-16 p-3 bg-primary text-white text-xl rounded font-roboto font-bold cursor-pointer dark:bg-dark-primary disabled:bg-gray-400"
               disabled={!isValid}
             >
               Salvar

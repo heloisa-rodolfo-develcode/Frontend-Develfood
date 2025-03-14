@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { MagnifyingGlass, CaretLeft, CaretRight } from "phosphor-react";
 import { NavLink } from "react-router-dom";
-import { CardProduct } from "../../components/productCard";
+
 import { Product } from "../../interfaces/productInterface";
 import { getProducts, deleteProduct } from "../../services/productService"; 
+import { CardProduct } from "./components/productCard";
 
 export function Menu() {
   const [showModal, setShowModal] = useState(false);
@@ -71,7 +72,7 @@ export function Menu() {
     <div className="p-10">
       <div className="flex justify-center gap-30 items-center">
         <NavLink to="/dish-register">
-          <button className="bg-primary font-roboto text-white text-xl px-5 py-2 rounded-lg cursor-pointer">
+          <button className="bg-primary font-roboto text-white text-xl px-5 py-2 rounded-lg cursor-pointer dark:bg-dark-primary">
             Novo prato +
           </button>
         </NavLink>
@@ -82,7 +83,7 @@ export function Menu() {
           <input
             type="text"
             placeholder="Nome do prato"
-            className="border bg-white border-gray-300 rounded-lg px-8 py-2"
+            className="border bg-white border-gray-300 rounded-lg px-8 py-2 dark:text-dark-background"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -104,7 +105,7 @@ export function Menu() {
 
       <div className="flex justify-center mt-6 gap-4">
         <button
-          className="bg-primary text-white px-4 py-2 rounded disabled:opacity-50"
+          className="bg-primary text-white px-4 py-2 rounded dark:bg-dark-primary disabled:opacity-50 "
           onClick={prevPage}
           disabled={currentPage === 1}
         >
@@ -114,7 +115,7 @@ export function Menu() {
           Página {currentPage} de {totalPages}
         </span>
         <button
-          className="bg-primary text-white px-4 py-2 rounded disabled:opacity-50"
+          className="bg-primary text-white px-4 py-2 rounded dark:bg-dark-primary disabled:opacity-50"
           onClick={nextPage}
           disabled={currentPage === totalPages}
         >

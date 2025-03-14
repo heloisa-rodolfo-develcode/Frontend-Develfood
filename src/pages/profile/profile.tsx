@@ -272,7 +272,7 @@ export function Profile() {
                 )}
               </div>
 
-              <button className="mt-4 w-full cursor-pointer font-roboto bg-blue-900 text-white py-2 rounded-lg" onClick={() => navigate("/change-password")}>
+              <button className="mt-4 w-full cursor-pointer font-roboto bg-blue-900 text-white py-2 rounded-lg dark:bg-dark-primary" onClick={() => navigate("/change-password")}>
                 Alterar senha
               </button>
             </div>
@@ -365,7 +365,7 @@ export function Profile() {
                     {foodTypes.map((option) => (
                       <label
                         key={option.value}
-                        className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+                        className="flex items-center p-2 hover:bg-gray-100 cursor-pointer dark:text-gray-600"
                       >
                         <input
                           type="checkbox"
@@ -556,7 +556,7 @@ export function Profile() {
         <div className="flex items-center justify-center">
           <button
             type="submit"
-            className="mt-6 w-[24rem] cursor-pointer font-roboto bg-blue-900 text-white py-2 rounded-lg"
+            className="mt-6 w-[24rem] cursor-pointer font-roboto bg-blue-900 text-white py-2 rounded-lg dark:bg-dark-primary"
           >
             Salvar Alterações
           </button>
