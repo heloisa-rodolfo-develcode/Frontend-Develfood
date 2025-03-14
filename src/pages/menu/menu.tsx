@@ -126,7 +126,7 @@ export function Menu() {
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50">
           <div className="bg-white p-20 rounded-lg shadow-lg text-center">
-            <p className="text-xl font-roboto font-semibold mb-10">
+            <p className="text-xl font-roboto font-semibold mb-10 dark:text-black">
               Você tem certeza que deseja {modalAction} este item?
             </p>
             <div className="flex justify-center gap-12">
