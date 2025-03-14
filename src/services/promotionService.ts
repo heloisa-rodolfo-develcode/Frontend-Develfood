@@ -15,7 +15,7 @@ export const getPromotion = async (): Promise<Promotion[]> => {
       throw new Error("Resposta inesperada da API"); 
     }
   } catch (error) {
-    console.error("Erro ao carregar produtos:", error);
+    console.error("Erro ao carregar promoções:", error);
     throw error; 
   }
 };
@@ -26,8 +26,13 @@ export const getPromotionById = async (id: string): Promise<Promotion> => {
     const response = await axios.get(`${API_URL}/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Erro ao carregar promoções:", error);
-    toast.error("Erro ao carregar promoções. Tente novamente.");
+    if (axios.isAxiosError(error)) {
+      toast.error(`Erro ao carregar promoção: ${error.response?.data?.message} - Tente novamente.`);
+    } else {
+
+      toast.error("Erro ao carregar promoção. Tente novamente.");
+    }
+
     throw error;
   }
 };
@@ -42,14 +47,18 @@ export const promotionRegister = async (promotionData: {
   try {
     const response = await axios.post(API_URL, promotionData);
 
-    if (response.status === 200) {
+    if (response.status === 201) {
       toast.success("Promoção cadastrada com sucesso!");
       return response.data;
     }
     throw new Error("Resposta inesperada da API");
   } catch (error) {
-    console.error("Erro ao cadastrar promoção:", error);
-    toast.error("Erro ao cadastrar promoção. Tente novamente.");
+
+    if (axios.isAxiosError(error)) {
+      toast.error(`Erro ao cadastrar promoção: ${error.response?.data?.message} - Tente novamente.`);
+    } else {
+      toast.error("Erro ao cadastrar promoção. Tente novamente.");
+    }
     throw error;
   }
 };
@@ -74,8 +83,13 @@ export const updatePromotion = async (
     }
     throw new Error("Resposta inesperada da API");
   } catch (error) {
-    console.error("Erro ao atualizar promoção:", error);
-    toast.error("Erro ao atualizar promoção. Tente novamente.");
+
+    if (axios.isAxiosError(error)) {
+      toast.error(`Erro ao atualizar promoção: ${error.response?.data?.message} - Tente novamente.`);
+    } else {
+      toast.error("Erro ao atualizar promoção. Tente novamente.");
+    }
+
     throw error;
   }
 };
