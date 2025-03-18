@@ -1,14 +1,31 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useState } from "react";
-import { CaretLeft, CurrencyDollar, ForkKnife, House, List, Phone, User, Moon, Sun } from "phosphor-react";
+import {
+  CaretLeft,
+  CurrencyDollar,
+  ForkKnife,
+  House,
+  List,
+  Phone,
+  User,
+  Moon,
+  Sun,
+} from "phosphor-react";
 import { useDarkMode } from "../../context/darkModeContext";
+import { Chatbot } from "../../components/chatbot";
 
 export function AppLayout() {
   const [isOpen, setIsOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const [isRotated, setIsRotated] = useState(false);
+
+  const handleToggleDarkMode = () => {
+    toggleDarkMode();
+    setIsRotated(!isRotated);
+  };
 
   return (
-    <div className={`${isDarkMode ? 'dark' : ''} w-full h-full`}>
+    <div className={`${isDarkMode ? "dark" : ""} w-full h-full`}>
       <div className="flex w-full h-screen bg-background dark:bg-dark-background">
         <aside
           className={`bg-primary dark:bg-dark-primary text-white h-full flex flex-col items-center transition-all duration-300 ${
@@ -22,7 +39,10 @@ export function AppLayout() {
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? (
-              <span className="flex gap-20 font-roboto">DEVELFOOD<CaretLeft size={24} /></span>
+              <span className="flex gap-20 font-roboto">
+                DEVELFOOD
+                <CaretLeft size={24} />
+              </span>
             ) : (
               <List size={24} />
             )}
@@ -35,7 +55,9 @@ export function AppLayout() {
                 `flex space-x-4 p-3 transition-all duration-300 ${
                   isActive && isOpen
                     ? "bg-white text-primary font-bold ml-4 rounded-l-lg dark:bg-dark-background text-white"
-                    : `hover:bg-gray-600 dark:hover:bg-cyan-300 rounded-lg ${!isOpen ? "justify-center" : ""}`
+                    : `hover:bg-gray-600 dark:hover:bg-cyan-300 rounded-lg ${
+                        !isOpen ? "justify-center" : ""
+                      }`
                 }`
               }
             >
@@ -48,7 +70,9 @@ export function AppLayout() {
                 `flex space-x-4 p-3 transition-all duration-300 ${
                   isActive && isOpen
                     ? "bg-white text-primary font-bold ml-4 rounded-l-lg dark:bg-dark-background text-white"
-                    : `hover:bg-gray-600 dark:hover:bg-cyan-300 rounded-lg ${!isOpen ? "justify-center" : ""}`
+                    : `hover:bg-gray-600 dark:hover:bg-cyan-300 rounded-lg ${
+                        !isOpen ? "justify-center" : ""
+                      }`
                 }`
               }
             >
@@ -61,7 +85,9 @@ export function AppLayout() {
                 `flex space-x-4 p-3 transition-all duration-300 ${
                   isActive && isOpen
                     ? "bg-white text-primary font-bold ml-4 rounded-l-lg dark:bg-dark-background text-white"
-                    : `hover:bg-gray-600 dark:hover:bg-cyan-300 rounded-lg ${!isOpen ? "justify-center" : ""}`
+                    : `hover:bg-gray-600 dark:hover:bg-cyan-300 rounded-lg ${
+                        !isOpen ? "justify-center" : ""
+                      }`
                 }`
               }
             >
@@ -74,7 +100,9 @@ export function AppLayout() {
                 `flex space-x-4 p-3 transition-all duration-300 ${
                   isActive && isOpen
                     ? "bg-white text-primary font-bold ml-4 rounded-l-lg dark:bg-dark-background text-white"
-                    : `hover:bg-gray-600 dark:hover:bg-cyan-300 rounded-lg ${!isOpen ? "justify-center" : ""}`
+                    : `hover:bg-gray-600 dark:hover:bg-cyan-300 rounded-lg ${
+                        !isOpen ? "justify-center" : ""
+                      }`
                 }`
               }
             >
@@ -87,7 +115,9 @@ export function AppLayout() {
                 `flex space-x-4 p-3 transition-all duration-300 ${
                   isActive && isOpen
                     ? "bg-white text-primary font-bold ml-4 rounded-l-lg dark:bg-dark-background text-white"
-                    : `hover:bg-gray-600 dark:hover:bg-cyan-300 rounded-lg ${!isOpen ? "justify-center" : ""}`
+                    : `hover:bg-gray-600 dark:hover:bg-cyan-300 rounded-lg ${
+                        !isOpen ? "justify-center" : ""
+                      }`
                 }`
               }
             >
@@ -97,24 +127,32 @@ export function AppLayout() {
           </nav>
 
           <div className="mt-auto bg-profile dark:bg-dark-secondary p-3 flex items-center space-x-4">
-            <img src="images/profile/profile.jpg" alt="" className="w-10 h-10 rounded-full object-cover" />
+            <img
+              src="images/profile/profile.jpg"
+              alt=""
+              className="w-10 h-10 rounded-full object-cover"
+            />
             {isOpen && <span className="px-12">Heloisa</span>}
           </div>
         </aside>
 
         <div className="flex-1 flex flex-col">
           <header className="bg-primary dark:bg-dark-primary text-white h-16 flex items-center justify-center p-4 shadow-md relative">
-            {/* Logo centralizada */}
             <div className="flex justify-center flex-1">
               <img src="/header-logo.svg" alt="DevelFood" className="h-8" />
             </div>
 
-            {/* Botão no canto superior direito */}
             <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-white dark:bg-dark-secondary text-primary dark:text-dark-primary absolute right-4"
+              onClick={handleToggleDarkMode}
+              className={`p-2 rounded-full bg-white dark:bg-dark-secondary text-primary dark:text-white absolute right-4 transition-transform duration-300 ${
+                isRotated ? "rotate-180" : ""
+              }`}
             >
-              {isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
+              {isDarkMode ? (
+                <Sun size={24} className={`transform ${isRotated ? "rotate-180" : ""}`} />
+              ) : (
+                <Moon size={24} className={`transform ${isRotated ? "rotate-180" : ""}`} />
+              )}
             </button>
           </header>
 
@@ -123,6 +161,7 @@ export function AppLayout() {
           </main>
         </div>
       </div>
+      <Chatbot />
     </div>
   );
 }
