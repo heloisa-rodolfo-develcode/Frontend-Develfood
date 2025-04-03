@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { SignIn } from "./pages/auth/signIn";
 import { SignUp } from "./pages/register/signUp";
 import { AuthLayout } from "./pages/_layouts/authLayout";
@@ -16,12 +16,12 @@ import { PromotionRegister } from "./promotion/promotionRegister";
 import { PromotionEdit } from "./promotion/promotionEdit";
 import { ProtectedRoute } from "./components/protectedRoute";
 
-
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <AuthLayout />,
     children: [
+      { path: "/", element: <Navigate to="/sign-in" replace /> }, 
       { path: "sign-in", element: <SignIn /> },
       { path: "sign-up", element: <SignUp /> },
       { path: "change-password", element: <ChangePassword /> },
