@@ -13,11 +13,13 @@ import {
 } from "phosphor-react";
 import { useDarkMode } from "../../context/darkModeContext";
 import { Chatbot } from "../../components/chatbot";
+import { RestaurantProfileProvider } from "../../context/restaurantProfileContext";
 
 export function AppLayout() {
   const [isOpen, setIsOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [isRotated, setIsRotated] = useState(false);
+
 
   const handleToggleDarkMode = () => {
     toggleDarkMode();
@@ -157,7 +159,9 @@ export function AppLayout() {
           </header>
 
           <main className="p-4 overflow-hidden">
+            <RestaurantProfileProvider>
             <Outlet />
+            </RestaurantProfileProvider>
           </main>
         </div>
       </div>

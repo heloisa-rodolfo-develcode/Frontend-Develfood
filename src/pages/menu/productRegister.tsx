@@ -12,7 +12,7 @@ const schema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
   description: z.string().min(1, "A descrição é obrigatória"),
   price: z.string().min(1, "O preço é obrigatório"),
-  foodTypes: z
+  foodCategory: z
     .array(z.string())
     .min(1, "Selecione pelo menos um tipo de comida")
     .max(1, "Selecione no máximo um tipo de comida"),
@@ -22,10 +22,10 @@ const schema = z.object({
 
 type DishFormData = z.infer<typeof schema>;
 
-const foodTypes = [
-  { label: "Pratos", value: "pratos" },
-  { label: "Sobremesas", value: "sobremesas" },
-  { label: "Bebidas", value: "bebidas" },
+const foodCategories = [
+  { label: "Prato", value: "FOOD" },
+  { label: "Sobremesa", value: "DESSERT" },
+  { label: "Drink", value: "DRINK" },
 ];
 
 export function DishRegister() {
@@ -47,8 +47,8 @@ export function DishRegister() {
       name: "",
       description: "",
       price: "",
-      foodTypes: [],
-      available: true, 
+      foodCategory: [],
+      available: true,
     },
   });
 
@@ -58,7 +58,7 @@ export function DishRegister() {
     const newSelectedFoods = selectedFoods.includes(value) ? [] : [value];
 
     setSelectedFoods(newSelectedFoods);
-    setValue("foodTypes", newSelectedFoods, { shouldValidate: true });
+    setValue("foodCategory", newSelectedFoods, { shouldValidate: true });
   };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,13 +79,21 @@ export function DishRegister() {
 
   const onSubmit = async (data: DishFormData) => {
     try {
+      const priceAsNumber = parseFloat(
+        data.price.replace("R$", "").replace(",", ".").trim()
+      );
+
+      const fileInput = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement;
+      const file = fileInput.files?.[0];
+
       await productRegister({
         name: data.name,
-        image: selectedImage || null,
         description: data.description,
-        price: data.price,
-        foodTypes: data.foodTypes,
-        available: data.available, 
+        price: priceAsNumber,
+        foodCategory: data.foodCategory[0],
+        file: file,
       });
 
       setTimeout(() => {
@@ -162,7 +170,7 @@ export function DishRegister() {
                           ? "bg-green-500 text-white"
                           : "bg-gray-300 text-gray-700"
                       }`}
-                      onClick={() => field.onChange(true)} 
+                      onClick={() => field.onChange(true)}
                     >
                       Ativo
                     </button>
@@ -173,7 +181,7 @@ export function DishRegister() {
                           ? "bg-red-500 text-white"
                           : "bg-gray-300 text-gray-700"
                       }`}
-                      onClick={() => field.onChange(false)} 
+                      onClick={() => field.onChange(false)}
                     >
                       Inativo
                     </button>
@@ -258,18 +266,18 @@ export function DishRegister() {
                     size={18}
                   />
                 </div>
-                {errors.foodTypes && (
+                {errors.foodCategory && (
                   <span className="text-red-500">
-                    {errors.foodTypes.message}
+                    {errors.foodCategory.message}
                   </span>
                 )}
 
                 {isOpen && (
-                  <div className="absolute mt-1 w-[20rem] bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-30 overflow-y-auto">
-                    {foodTypes.map((option) => (
+                  <div className="absolute mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-[180px] overflow-y-auto">
+                    {foodCategories.map((option) => (
                       <label
                         key={option.value}
-                        className="flex items-center p-2 hover:bg-gray-100 cursor-pointer dark:bg-white text-gray-600"
+                        className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
                       >
                         <input
                           type="checkbox"
@@ -277,7 +285,7 @@ export function DishRegister() {
                           onChange={() => handleCheckboxChange(option.value)}
                           className="mr-2"
                           disabled={
-                            selectedFoods.length >= 1 &&
+                            selectedFoods.length >= 2 &&
                             !selectedFoods.includes(option.value)
                           }
                         />

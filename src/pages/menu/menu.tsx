@@ -1,39 +1,40 @@
 import { useState, useEffect } from "react";
 import { MagnifyingGlass, CaretLeft, CaretRight } from "phosphor-react";
 import { NavLink } from "react-router-dom";
-
+import { CardProduct } from "./components/productCard";
 import { Product } from "../../interfaces/productInterface";
 import { getProducts, deleteProduct } from "../../services/productService"; 
-import { CardProduct } from "./components/productCard";
 
 export function Menu() {
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
-  const [productToDelete, setProductToDelete] = useState<number | null>(null);
+  const [productToDelete, setProductToDelete] = useState<string  | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const itemsPerPage = 8;
-
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
         const products = await getProducts();
-        setProducts(products);
+        setProducts(Array.isArray(products) ? products : []);
       } catch (error) {
         console.error("Erro ao carregar produtos:", error);
+        setProducts([]); 
       }
     };
 
     loadProducts();
   }, []);
 
-  const filteredProdutos = searchTerm.length >= 3
-    ? products.filter((product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : products;
+  const filteredProdutos = Array.isArray(products) 
+    ? searchTerm.length >= 3
+      ? products.filter((product) =>
+          product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : products
+    : [];
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -49,7 +50,7 @@ export function Menu() {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  const handleOpenModal = (action: string, productId: number) => {
+  const handleOpenModal = (action: string, productId: string) => {
     setModalAction(action);
     setProductToDelete(productId);
     setShowModal(true);

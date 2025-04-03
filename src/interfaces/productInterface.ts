@@ -1,9 +1,10 @@
 export interface Product {
-    id: number;
+    id: string;
+    idRestaurant: string;
     name: string;
+    foodImage: string;
     description: string;
     price: string;
-    foodTypes: string[];
-    image: string | null;
+    foodCategory: string[];
     available: boolean;
-}
+  }

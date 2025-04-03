@@ -21,7 +21,7 @@ export function CardProduct({ products, onDelete }: CardProductProps) {
     >
       <div className="relative">
         <img
-          src={products.image ?? "/placeholder.png"}
+          src={products.foodImage ?? "/placeholder.png"}
           alt={products.name}
           className="w-full h-40 object-cover rounded-lg"
         />

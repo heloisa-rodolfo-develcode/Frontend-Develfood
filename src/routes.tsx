@@ -7,42 +7,45 @@ import { Home } from "./pages/app/home";
 import { NotFound } from "./pages/error/404";
 import { Profile } from "./pages/profile/profile";
 import { Menu } from "./pages/menu/menu";
+import { OrderPage } from "./pages/order/order";
 import { DishRegister } from "./pages/menu/productRegister";
 import { DishEdit } from "./pages/menu/productEdit";
-import { SuccessPage } from "./pages/register/successPage";
-import { ErrorPage } from "./pages/register/errorPage";
-import { OrderPage } from "./pages/order/order";
+import { ChangePassword } from "./pages/changePassword/changePassword";
 import { PromotionPage } from "./promotion/promotion";
 import { PromotionRegister } from "./promotion/promotionRegister";
 import { PromotionEdit } from "./promotion/promotionEdit";
+import { ProtectedRoute } from "./components/protectedRoute";
+
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <AppLayout />, 
-    children: [
-    
-      { index: true, element: <Home /> },
-      { path: "home", element: <Home /> },
-      { path: "menu", element: <Menu /> }, 
-      { path: "profile", element: <Profile /> },
-      { path: "menu", element: <Menu /> },
-      { path: "order", element: <OrderPage /> },
-      { path: "promotion", element: <PromotionPage /> },
-      { path: "dish-register", element: <DishRegister /> },
-      { path: "dish-edit/:id", element: <DishEdit /> },
-      { path: "promotion-register", element: <PromotionRegister /> },
-      { path: "promotion-edit/:id", element: <PromotionEdit /> },
-    ],
-  },
-  {
-    path: "/auth", // Mudei o prefixo para /auth
     element: <AuthLayout />,
     children: [
       { path: "sign-in", element: <SignIn /> },
       { path: "sign-up", element: <SignUp /> },
-      { path: "success-register", element: <SuccessPage /> },
-      { path: "error-register", element: <ErrorPage /> },
+      { path: "change-password", element: <ChangePassword /> },
+    ],
+  },
+  {
+    path: "/",
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: "/",
+        element: <AppLayout />,
+        children: [
+          { path: "home", element: <Home /> },
+          { path: "profile", element: <Profile /> },
+          { path: "menu", element: <Menu /> },
+          { path: "order", element: <OrderPage /> },
+          { path: "promotion", element: <PromotionPage /> },
+          { path: "dish-register", element: <DishRegister /> },
+          { path: "dish-edit/:id", element: <DishEdit /> },
+          { path: "promotion-register", element: <PromotionRegister /> },
+          { path: "promotion-edit/:id", element: <PromotionEdit /> },
+        ],
+      },
     ],
   },
   {

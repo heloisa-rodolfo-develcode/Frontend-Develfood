@@ -1,31 +1,26 @@
-import axios from "axios";
+import { api } from "./api";
 import toast from "react-hot-toast";
 import { Product } from "../interfaces/productInterface";
 
-
-
-const API_URL = "https://backend-develfood-64x6.onrender.com/products";
-
-
 export const getProducts = async (): Promise<Product[]> => {
   try {
-    const response = await axios.get(API_URL);
-    if (Array.isArray(response.data)) {
-      return response.data;
-    } else {
-      throw new Error("Resposta inesperada da API"); 
-    }
+    const response = await api.get("/restaurant/foodMenu/get");
+    return Array.isArray(response.data.content) ? response.data.content : [];
   } catch (error) {
     console.error("Erro ao carregar produtos:", error);
-    throw error; 
+    return [];
   }
 };
 
-
-export const getProductById = async (id: string): Promise<Product> => {
+export const getProductById = async (idRestaurant: string, idDish: string): Promise<Product> => {
   try {
-    const response = await axios.get(`${API_URL}/${id}`);
-    return response.data;
+    const response = await api.get(`/restaurant/foodMenu/get/${idRestaurant}/${idDish}`);
+    
+    if (response.data && response.data.id) {
+      return response.data;
+    } else {
+      throw new Error("Estrutura do produto inválida");
+    }
   } catch (error) {
     console.error("Erro ao carregar produto:", error);
     toast.error("Erro ao carregar produto. Tente novamente.");
@@ -35,47 +30,72 @@ export const getProductById = async (id: string): Promise<Product> => {
 
 export const productRegister = async (dishData: {
   name: string;
-  image: string | null;
   description: string;
-  price: string;
-  foodTypes: string[];
-  available: boolean;
+  price: number;
+  foodCategory: string; 
+  file?: File; 
 }): Promise<Product> => {
   try {
-    const response = await axios.post(API_URL, dishData);
-
-    if (response.status === 201) {
-      toast.success("Produto cadastrado com sucesso!");
-      return response.data;
+    const formData = new FormData();
+    formData.append('dish', JSON.stringify({
+      name: dishData.name,
+      description: dishData.description,
+      price: dishData.price,
+      foodCategory: dishData.foodCategory
+    }));
+    
+    if (dishData.file) {
+      formData.append('file', dishData.file); 
     }
-    throw new Error("Resposta inesperada da API");
+
+    const response = await api.post("/restaurant/foodMenu/create", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    toast.success("Produto cadastrado com sucesso!");
+    return response.data;
   } catch (error) {
     console.error("Erro ao cadastrar produto:", error);
-    toast.error("Erro ao cadastrar produto. Tente novamente.");
     throw error;
   }
 };
 
-
 export const updateProduct = async (
-  id: string,
-  dishData: {
+  idDish: string,
+  dishData: { // Objeto com os dados do prato (será stringificado)
     name: string;
     description: string;
     price: string;
     foodTypes: string[];
-    image?: string | null;
     available: boolean;
-  }
+  },
+  file?: File 
 ): Promise<Product> => {
   try {
-    const response = await axios.put(`${API_URL}/${id}`, dishData);
+    const formData = new FormData();
 
-    if (response.status === 200) {
-      toast.success("Produto atualizado com sucesso!");
-      return response.data;
+    formData.append(
+      'dish',
+      JSON.stringify(dishData) 
+    );
+
+    if (file) {
+      formData.append('file', file);
     }
-    throw new Error("Resposta inesperada da API");
+    const response = await api.put(
+      `/restaurant/foodMenu/update/${idDish}`,
+      formData,
+      {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      }
+    );
+
+    toast.success("Produto atualizado com sucesso!");
+    return response.data;
   } catch (error) {
     console.error("Erro ao atualizar produto:", error);
     toast.error("Erro ao atualizar produto. Tente novamente.");
@@ -83,10 +103,10 @@ export const updateProduct = async (
   }
 };
 
-
-export const deleteProduct = async (id: number): Promise<void> => {
+export const deleteProduct = async (id: string): Promise<void> => {
   try {
-    await axios.delete(`${API_URL}/${id}`);
+    await api.delete(`/restaurant/foodMenu/delete/${id}`);
+    toast.success("Produto excluído com sucesso!");
   } catch (error) {
     console.error("Erro ao excluir produto:", error);
     throw error;

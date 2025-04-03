@@ -21,9 +21,8 @@ import {
 } from "../../services/profileService";
 import { formatCNPJ } from "../../utils/masks/maskCnpj";
 import { useNavigate } from "react-router-dom";
-
-import { Toaster } from "react-hot-toast";
 import { fetchAddressByZipcode } from "../../services/cepService";
+import { Toaster } from "react-hot-toast";
 
 const schema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
@@ -95,17 +94,19 @@ export function Profile() {
   const [selectedFoods, setSelectedFoods] = useState<string[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [profile, setProfile] = useState<FormData | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
       const profile = await getRestaurantProfile("12345678901234");
-  
+
       if (!profile) {
-        console.error("Perfil não encontrado ou erro ao carregar.");
         return;
       }
-  
+
+      setProfile(profile);
+
       setValue("name", profile.name);
       setValue("email", profile.email);
       setValue("phone", profile.phone);
@@ -118,10 +119,10 @@ export function Profile() {
       setValue("neighborhood", profile.neighborhood);
       setValue("state", profile.state);
       setValue("number", profile.number);
-  
+
       setSelectedFoods(profile.foodTypes);
     };
-  
+
     fetchProfile();
   }, [setValue]);
 
@@ -138,18 +139,19 @@ export function Profile() {
     setValue("foodTypes", newSelectedFoods, { shouldValidate: true });
   };
 
-
-  const handleZipCodeChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleZipCodeChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const rawValue = event.target.value.replace(/\D/g, "");
     const maskedValue = maskZipcode(rawValue);
     setValue("zipcode", maskedValue, { shouldValidate: true });
     if (rawValue.length === 8) {
-      const responseZipcode = await fetchAddressByZipcode(rawValue)
+      const responseZipcode = await fetchAddressByZipcode(rawValue);
       if (responseZipcode) {
-          setValue("street", responseZipcode.street || "");
-          setValue("neighborhood", responseZipcode.neighborhood || "");
-          setValue("city", responseZipcode.city || "");
-          setValue("state", responseZipcode.state || "");
+        setValue("street", responseZipcode.street || "");
+        setValue("neighborhood", responseZipcode.neighborhood || "");
+        setValue("city", responseZipcode.city || "");
+        setValue("state", responseZipcode.state || "");
       }
     }
   };
@@ -170,11 +172,14 @@ export function Profile() {
   };
 
   const onSubmit = async (data: FormData) => {
-    const cnpj = "12345678901234";
-    console.log("Dados enviados:", data); 
+    if (!profile) {
+      return;
+    }
+
+    const cnpj = profile.cnpj;
     await updateRestaurantProfile(cnpj, data);
   };
-  
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -193,7 +198,7 @@ export function Profile() {
 
   return (
     <div className="mx-auto p-30">
-    <Toaster position="bottom-right"/>
+      <Toaster position="bottom-right" />
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-3 gap-8">
           <div className="flex flex-col items-center">
@@ -272,7 +277,14 @@ export function Profile() {
                 )}
               </div>
 
-              <button className="mt-4 w-full cursor-pointer font-roboto bg-blue-900 text-white py-2 rounded-lg dark:bg-dark-primary" onClick={() => navigate("/change-password")}>
+              <button
+                className="mt-4 w-full cursor-pointer font-roboto bg-primary text-white py-2 rounded-lg dark:bg-dark-primary"
+                onClick={() =>
+                  navigate("/change-password", {
+                    state: { email: profile?.email },
+                  })
+                }
+              >
                 Alterar senha
               </button>
             </div>
@@ -365,7 +377,7 @@ export function Profile() {
                     {foodTypes.map((option) => (
                       <label
                         key={option.value}
-                        className="flex items-center p-2 hover:bg-gray-100 cursor-pointer dark:text-gray-600"
+                        className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
                       >
                         <input
                           type="checkbox"
@@ -556,7 +568,7 @@ export function Profile() {
         <div className="flex items-center justify-center">
           <button
             type="submit"
-            className="mt-6 w-[24rem] cursor-pointer font-roboto bg-blue-900 text-white py-2 rounded-lg dark:bg-dark-primary"
+            className="mt-6 w-[24rem] cursor-pointer font-roboto bg-primary text-white py-2 rounded-lg dark:bg-dark-primary"
           >
             Salvar Alterações
           </button>
@@ -564,4 +576,4 @@ export function Profile() {
       </form>
     </div>
   );
-}
+};

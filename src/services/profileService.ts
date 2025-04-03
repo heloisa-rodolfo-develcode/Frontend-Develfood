@@ -1,45 +1,55 @@
-import axios from "axios";
-import toast from "react-hot-toast";
+import { DeleteAccountData, RestaurantProfile } from '../interfaces/profileInterface';
+import { api } from './api';
+import toast from 'react-hot-toast';
 
-const API_URL = "https://backend-develfood-64x6.onrender.com/restaurants"; 
 
-interface RestaurantProfile {
-  name: string;
-  email: string;
-  cnpj: string;
-  phone: string;
-  foodTypes: string[];
-  nickname: string;
-  zipcode: string;
-  street: string;
-  city: string;
-  neighborhood: string;
-  state: string;
-  number: string;
-}
-
-export const getRestaurantProfile = async (cnpj: string): Promise<RestaurantProfile | null> => {
+export const getRestaurantProfile = async (): Promise<RestaurantProfile> => {
   try {
-    const response = await axios.get(`${API_URL}?cnpj=${cnpj}`);
-    if (response.data.length > 0) {
-      return response.data[0];
-    } else {
-      throw new Error("Restaurante não encontrado");
-    }
-  } catch {
+    const response = await api.get('/restaurant/profile');
+    return response.data;
+  } catch (error) {
     toast.error("Erro ao buscar perfil do restaurante");
-    return null
+    throw error;
   }
 };
 
 export const updateRestaurantProfile = async (
-  cnpj: string,
-  data: RestaurantProfile 
+  data: RestaurantProfile
 ): Promise<void> => {
   try {
-    await axios.put(`${API_URL}/${cnpj}`, data);
-    toast.success("Perfil atualizado com sucesso!")
-  } catch {
+    await api.put('/restaurant/update', data);
+    toast.success("Perfil atualizado com sucesso!");
+  } catch  {
     toast.error("Erro ao atualizar perfil do restaurante");
+  }
+};
+
+export const updateRestaurantImage = async (file: File): Promise<string> => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await api.put('/restaurant/update/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    toast.success("Imagem atualizada com sucesso!");
+    return response.data.imageUrl; 
+  } catch (error) {
+    toast.error("Erro ao atualizar imagem do restaurante");
+    throw error;
+  }
+};
+
+export const deleteRestaurantAccount = async (
+  data: DeleteAccountData
+): Promise<void> => {
+  try {
+    await api.delete('/restaurant/delete', { data });
+    toast.success("Conta excluída com sucesso!");
+  } catch  {
+    toast.error("Erro ao excluir conta do restaurante");
   }
 };

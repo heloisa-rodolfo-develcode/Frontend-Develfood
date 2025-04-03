@@ -7,6 +7,7 @@ import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { formatPrice } from "../../utils/masks/maskPrice";
 import { Toaster } from "react-hot-toast";
 import { getProductById, updateProduct } from "../../services/productService";
+import { useRestaurantProfile } from "../../context/restaurantProfileContext";
 
 const schema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
@@ -22,13 +23,14 @@ const schema = z.object({
 type DishFormData = z.infer<typeof schema>;
 
 const foodTypes = [
-  { label: "Pratos", value: "pratos" },
-  { label: "Sobremesas", value: "sobremesas" },
-  { label: "Bebidas", value: "bebidas" },
+  { label: "Prato", value: "FOOD" },
+  { label: "Sobremesa", value: "DESSERT" },
+  { label: "Drink", value: "DRINK" },
 ];
 
 export function DishEdit() {
   const { id } = useParams<{ id: string }>();
+  const { profile } = useRestaurantProfile(); 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFoods, setSelectedFoods] = useState<string[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -47,23 +49,28 @@ export function DishEdit() {
   });
 
   useEffect(() => {
-    if (id) {
-      getProductById(id)
+    if (id && profile?.id) { 
+      getProductById(profile.id, id)
         .then((product) => {
           reset({
             name: product.name,
             description: product.description,
-            price: product.price,
-            foodTypes: product.foodTypes,
+            price: product.price.toString(),
+            foodTypes: Array.isArray(product.foodCategory) 
+              ? product.foodCategory 
+              : [product.foodCategory], 
             available: product.available, 
           });
-          setSelectedFoods(product.foodTypes);
-          setSelectedImage(product.image);
-
+          setSelectedFoods(
+            Array.isArray(product.foodCategory) 
+              ? product.foodCategory 
+              : [product.foodCategory] 
+          );
+          setSelectedImage(product.foodImage);
         })
         .catch((error) => console.error("Erro ao carregar produto:", error));
     }
-  }, [id, reset]);
+  }, [id, reset, profile?.id]);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -77,6 +84,10 @@ export function DishEdit() {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("A imagem não pode ser maior que 5MB.");
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setSelectedImage(reader.result as string);
@@ -88,36 +99,31 @@ export function DishEdit() {
   const onSubmit = async (data: DishFormData) => {
     if (id) {
       try {
-        await updateProduct(id, {
-          ...data,
-          image: selectedImage || null,
+        const priceAsString = data.price
+          .replace('R$', '')
+          .replace(/\./g, '')
+          .replace(',', '.')
+          .trim();
+  
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        const file = fileInput.files?.[0]; 
 
-        });
-
-        setTimeout(() => {
-          navigate("/menu");
-        }, 2000);
+        const dishData = {
+          name: data.name,
+          description: data.description,
+          price: priceAsString, 
+          foodTypes: data.foodTypes,
+          available: data.available,
+        };
+  
+        await updateProduct(id, dishData, file); 
+  
+        setTimeout(() => navigate("/menu"), 2000);
       } catch (error) {
         console.error("Erro ao atualizar produto:", error);
       }
     }
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   return (
     <div className="flex items-center justify-center p-6 mt-8 bg-gray-100 dark:bg-dark-background">
