@@ -1,13 +1,10 @@
-import { useNavigate } from "react-router-dom";
 import Button from "../../components/button";
 
+interface ErrorPageProps {
+  onRetry: () => void;
+}
 
-
-export function ErrorPage(){
-
-  const navigate = useNavigate()
-  const handleSignUp = () => navigate('/sign-up')
-
+export function ErrorPage({ onRetry }: ErrorPageProps) {
   return (
     <div className="flex w-full items-start justify-center bg-background md:items-center">
       <div className="flex flex-col items-center mt-10">
@@ -22,7 +19,7 @@ export function ErrorPage(){
             Um erro ocorreu, contate o administrador do site ou tente novamente
           </p>
         </div>
-        <Button onClick={handleSignUp} className="h-[4rem] w-[2rem] font-roboto text-2xl">
+        <Button onClick={onRetry} className="h-[4rem] w-[2rem] font-roboto text-2xl">
           Continuar
         </Button>
       </div>

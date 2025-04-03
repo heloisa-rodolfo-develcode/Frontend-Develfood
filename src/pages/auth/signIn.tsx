@@ -4,13 +4,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-
 import { Toaster } from "react-hot-toast";
 import { Input } from "../../components/input";
-
 import Button from "../../components/button";
 import { cn } from "../../utils/utils";
-import { authenticate } from "../../services/authService";
+import { useAuth } from "../../hooks/useAuth";
 
 const signinForm = z.object({
   email: z.string().email({ message: "Insira um e-mail válido" }),
@@ -39,18 +37,10 @@ export function SignIn() {
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
+  const { login } = useAuth();
+
   const onSubmit = async (data: SignInForm) => {
-    const response = await authenticate(data);
-
-    if (response && response.token) {
-      localStorage.setItem("authToken", response.token);
-
-      setTimeout(() => {
-        navigate("/home");
-      }, 2000);
-    } else {
-      console.log("Usuário ou senha incorretos!");
-    }
+    await login(data);
   };
 
   return (
@@ -119,7 +109,12 @@ export function SignIn() {
           </form>
 
           <div className="flex flex-col items-center justify-center mt-4 text-sm text-primary">
-            <a href="#" className="block hover:underline">
+            <a
+              className="block hover:underline"
+              onClick={() => {
+                navigate("/change-password");
+              }}
+            >
               Esqueci minha senha
             </a>
             <a

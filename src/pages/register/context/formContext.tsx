@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { CreateRestaurantRequest } from "../../../services/createRestaurant";
+import { CreateRestaurantRequest } from "../../../interfaces/restaurantInterface";
 
 
 interface FormContextType {
@@ -24,14 +24,16 @@ export const FormProvider: React.FC<{ children: React.ReactNode }> = ({ children
       phone: "",
       email: "",
       password: "",
-      foodTypes: [],
-      nickname: "",
-      zipcode: "",
-      street: "",
-      neighborhood: "",
-      city: "",
-      state: "",
-      number: "",
+      types: [],
+      address: {
+        nickname: "",
+        zipcode: "",
+        street: "",
+        neighborhood: "",
+        city: "",
+        state: "",
+        number: "",
+      },
     });
   
     return (

@@ -5,9 +5,9 @@ import { Input } from "../../../components/input";
 import { formatCNPJ } from "../../../utils/masks/maskCnpj";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { useFormContext } from "../context/formContext";
-import { CreateRestaurantRequest } from "../../../services/createRestaurant";
+import { CreateRestaurantRequest } from "../../../interfaces/restaurantInterface";
+
 
 const step1Schema = z
   .object({

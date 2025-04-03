@@ -1,5 +1,5 @@
 import axios from "axios";
-import { api } from "./api"; 
+import { api } from "../services/api"; 
 import toast from 'react-hot-toast';
 
 export type SignInForm = {
@@ -9,7 +9,7 @@ export type SignInForm = {
 
 export async function authenticate(data: SignInForm) {
   try {
-    const response = await api.post('/auth/login', data); 
+    const response = await api.post('/restaurant/auth', data); 
 
     if (response.status !== 200) {
       throw new Error('Usuário ou senha inválidos.');

@@ -4,11 +4,9 @@ import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormContext } from "../context/formContext";
-import { useNavigate } from "react-router-dom";
-import axios from "axios"; 
-
 import { maskZipcode } from "../../../utils/masks/maskZipcode";
-import { CreateRestaurantRequest } from "../../../services/createRestaurant";
+import { CreateRestaurantRequest } from "../../../interfaces/restaurantInterface";
+
 
 const schema = z.object({
   nickname: z.string().min(1, "O apelido do endereço é obrigatório"),
@@ -22,10 +20,12 @@ const schema = z.object({
 
 type SchemaStep3 = z.infer<typeof schema>;
 
+
 interface Step3Props {
   onSubmit: (data: CreateRestaurantRequest) => Promise<void>;
   onBack: () => void;
 }
+
 export default function Step3({ onSubmit, onBack }: Step3Props) {
   const {
     control,
@@ -34,56 +34,59 @@ export default function Step3({ onSubmit, onBack }: Step3Props) {
     setValue,
   } = useForm<SchemaStep3>({
     resolver: zodResolver(schema),
-    mode: "onBlur",
+    mode: "onBlur", 
   });
 
-  const navigate = useNavigate();
-
   const fetchAddressByZipcode = async (zipcode: string) => {
-    const cleanZipcode = zipcode.replace(/\D/g, "");
-    if (cleanZipcode.length === 8) {
+    const cleanZipcode = zipcode.replace(/\D/g, '') 
+    if (cleanZipcode.length === 8) { 
       try {
-        const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cleanZipcode}`);
-        const data = await response.json();
+        const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cleanZipcode}`)
+        const data = await response.json()
         if (!data?.errors) {
-          setValue("street", data.street || "");
-          setValue("neighborhood", data.neighborhood || "");
-          setValue("city", data.city || "");
-          setValue("state", data.state || "");
+         
+          setValue('street', data.street || '')
+          setValue('neighborhood', data.neighborhood || '')
+          setValue('city', data.city || '')
+          setValue('state', data.state || '')
         } else {
-          console.error("CEP não encontrado");
+          console.error('CEP não encontrado')
         }
       } catch (error) {
-        console.error("Erro ao buscar endereço:", error);
+        console.error('Erro ao buscar endereço:', error)
       }
     }
-  };
-
+  }
+  
   const handleZipCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = event.target.value.replace(/\D/g, "");
-    const maskedValue = maskZipcode(rawValue);
-    setValue("zipcode", maskedValue, { shouldValidate: true });
+    const rawValue = event.target.value.replace(/\D/g, '') 
+    const maskedValue = maskZipcode(rawValue) 
+    setValue('zipcode', maskedValue, { shouldValidate: true }) 
     if (rawValue.length === 8) {
-      fetchAddressByZipcode(rawValue);
+      fetchAddressByZipcode(rawValue) 
     }
-  };
+  }
 
-  const { formData } = useFormContext();
+  const { formData } = useFormContext(); 
 
-  const handleFormSubmit = async (data: Partial<CreateRestaurantRequest>) => {
+  const handleFormSubmit = async (data: SchemaStep3) => {
     try {
-      const completeData = { ...formData, ...data };
-      const response = await axios.get('http://localhost:3000/restaurants');
-
-      if (response.status === 200) {
-        await onSubmit(completeData as CreateRestaurantRequest);
-        navigate("/success-register");
-      } else {
-        navigate("/error-register");
-      }
+      const completeData: CreateRestaurantRequest = {
+        ...formData, 
+        address: { 
+          nickname: data.nickname,
+          zipcode: data.zipcode,
+          street: data.street,
+          neighborhood: data.neighborhood,
+          city: data.city,
+          state: data.state,
+          number: data.number
+        }
+      };
+  
+      await onSubmit(completeData);
     } catch (error) {
-      console.error("Erro ao conectar com a API:", error);
-      navigate("/error-register");
+      console.error("Erro ao criar restaurante:", error);
     }
   };
 
@@ -92,7 +95,7 @@ export default function Step3({ onSubmit, onBack }: Step3Props) {
       <img src="images/step/step3.svg" alt="step 3" className="w-[10rem] object-cover" />
 
       <form onSubmit={handleSubmit(handleFormSubmit)} className="w-full max-w-md flex flex-col gap-2">
-      <div className="flex gap-2">
+        <div className="flex gap-2">
           <div className="relative flex flex-col w-full">
             <House className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <Controller
@@ -125,8 +128,8 @@ export default function Step3({ onSubmit, onBack }: Step3Props) {
                   className="pl-10 h-[3rem]"
                   required
                   onChange={(e) => {
-                    field.onChange(e);
-                    handleZipCodeChange(e);
+                    field.onChange(e); 
+                    handleZipCodeChange(e); 
                   }}
                 />
               )}

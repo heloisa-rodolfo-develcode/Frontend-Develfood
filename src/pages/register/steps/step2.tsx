@@ -6,7 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formatPhone } from "../../../utils/masks/maskPhone";
 import { useFormContext } from "../context/formContext";
-import { CreateRestaurantRequest } from "../../../services/createRestaurant";
+import { CreateRestaurantRequest } from "../../../interfaces/restaurantInterface";
 
 const schema = z.object({
   name: z.string().min(1, "O nome é obrigatório"),
@@ -14,17 +14,27 @@ const schema = z.object({
     .string()
     .min(1, "O telefone é obrigatório")
     .regex(/^\(\d{2}\) \d{4,5}-\d{4}$/, "Telefone inválido"),
-  foodTypes: z
+  types: z
     .array(z.string())
     .min(1, "Selecione pelo menos um tipo de comida")
     .max(2, "Selecione no máximo dois tipos de comida"),
 });
 
-const foodTypes = [
-  { label: "Brasileira", value: "brasileira" },
-  { label: "Picante", value: "picante" },
-  { label: "Mexicana", value: "mexicana" },
-  { label: "Japonesa", value: "japonesa" },
+const types = [
+  { label: "Mexicana", value: "MEXICAN" },
+  { label: "Chinesa", value: "CHINESE" },
+  { label: "Italiana", value: "ITALIAN" },
+  { label: "Snacks", value: "SNACKS" },
+  { label: "Arabe", value: "ARABIC" },
+  { label: "Açai", value: "AÇAÍ" },
+  { label: "Drink", value: "DRINK" },
+  { label: "Dessert", value: "DESSERT" },
+  { label: "Japonesa", value: "JAPONESE" },
+  { label: "Healthy", value: "HEALTHY" },
+  { label: "Barbecue", value: "BARBECUE" },
+  { label: "Brasileira", value: "BRAZILIAN" },
+  { label: "Pizza", value: "PIZZA" },
+  { label: "Hamburger", value: "HAMBURGER" },
 ];
 
 type SchemaStep2 = z.infer<typeof schema>;
@@ -47,7 +57,7 @@ export default function Step2({
     defaultValues: {
       name: "",
       phone: "",
-      foodTypes: [],
+      types: [],
     },
   });
 
@@ -67,17 +77,23 @@ export default function Step2({
       : selectedFoods;
 
     setSelectedFoods(newSelectedFoods);
-    setValue("foodTypes", newSelectedFoods, { shouldValidate: true });
+    setValue("types", newSelectedFoods, { shouldValidate: true });
   };
 
   const onSubmit = (data: Partial<CreateRestaurantRequest>) => {
-    setFormData((prev: CreateRestaurantRequest) => ({ ...prev, ...data }));
+    setFormData((prev: CreateRestaurantRequest) => ({
+      ...prev,
+      ...data,
+      types: data.types || [],
+    }));
     onNext();
   };
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -159,15 +175,13 @@ export default function Step2({
               />
               <CaretDown className="absolute right-3 text-gray-400" size={18} />
             </div>
-            {errors.foodTypes && (
-              <span className="text-red-500">
-                {errors.foodTypes.message}
-              </span>
+            {errors.types && (
+              <span className="text-red-500">{errors.types.message}</span>
             )}
 
             {isOpen && (
-              <div className="absolute mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-                {foodTypes.map((option) => (
+              <div className="absolute mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg z-10 max-h-[180px] overflow-y-auto">
+                {types.map((option) => (
                   <label
                     key={option.value}
                     className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
@@ -177,7 +191,10 @@ export default function Step2({
                       checked={selectedFoods.includes(option.value)}
                       onChange={() => handleCheckboxChange(option.value)}
                       className="mr-2"
-                      disabled={selectedFoods.length >= 2 && !selectedFoods.includes(option.value)}
+                      disabled={
+                        selectedFoods.length >= 2 &&
+                        !selectedFoods.includes(option.value)
+                      }
                     />
                     {option.label}
                   </label>

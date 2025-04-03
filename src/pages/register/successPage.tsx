@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/button";
 
-
 export function SuccessPage() {
   const navigate = useNavigate();
 
@@ -10,7 +9,7 @@ export function SuccessPage() {
   }
 
   return (
-    <div className="flex w-full h-[45.5rem] items-start justify-center bg-background md:items-center">
+    <div className="flex w-full items-start justify-center bg-background md:items-center">
       <div className="flex flex-col items-center mt-10">
   
         <div className="flex flex-col items-center justify-center text-center mb-6">
