@@ -10,12 +10,23 @@ export interface RestaurantAddress {
   }
   
   export interface RestaurantProfile {
-    name: string;
+    id?: string; // tornando opcional
+    email?: string; // tornando opcional
+    cnpj?: string; // tornando opcional
     phone: string;
+    address: {
+        zipcode: string;
+        number: string;
+        state: string;
+        nickname: string;
+        street: string;
+        city: string;
+        neighborhood: string;
+    };
+    name: string;
     types: string[];
-    address: RestaurantAddress;
     imageUrl?: string;
-  }
+}
   
   export interface RestaurantProfileResponse {
     name: string;
