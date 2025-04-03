@@ -10,7 +10,6 @@ export interface RestaurantAddress {
   }
   
   export interface RestaurantProfile {
-    id: string
     name: string;
     phone: string;
     types: string[];
@@ -32,9 +31,9 @@ export interface RestaurantAddress {
     password: string;
   }
   
-  
+
   export interface UserProps {
     email: string;
     cnpj: string;
-  
+
   }
